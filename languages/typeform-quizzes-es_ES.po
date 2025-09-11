@@ -1,0 +1,481 @@
+# Copyright (C) 2025 Making The Impact LLC
+# This file is distributed under the GPLv2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Typeform Quizzes 1.1.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/typeform-quizzes\n"
+"Last-Translator: Translator Name <translator@example.com>\n"
+"Language-Team: Spanish <es@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2025-09-10T23:39:06+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.11.0\n"
+"X-Domain: typeform-quizzes\n"
+
+#. Plugin Name of the plugin
+#: typeform-quizzes.php
+msgid "Typeform Quizzes"
+msgstr ""
+
+#. Plugin URI of the plugin
+#. Author URI of the plugin
+#: typeform-quizzes.php
+msgid "https://makingtheimpact.com"
+msgstr ""
+
+#. Description of the plugin
+#: typeform-quizzes.php
+msgid "Professional Typeform Quizzes slider with advanced features. Responsive design, Swiper.js integration, hosting platform compatibility (WP Engine, EasyWP, Kinsta, SiteGround), enhanced security, performance optimization, and comprehensive customization options. Production-ready with conflict prevention and caching."
+msgstr ""
+
+#. Author of the plugin
+#: typeform-quizzes.php
+msgid "Making The Impact LLC"
+msgstr ""
+
+#: typeform-quizzes.php:179
+#: typeform-quizzes.php:988
+#: typeform-quizzes.php:997
+msgid "Typeform Quizzes:"
+msgstr "Cuestionarios Typeform:"
+
+#: typeform-quizzes.php:179
+msgid "Potential conflicts detected with:"
+msgstr "Conflictos potenciales detectados con:"
+
+#: typeform-quizzes.php:180
+msgid "Please test your quiz sliders thoroughly after any updates."
+msgstr "Por favor, prueba tus deslizadores de cuestionarios a fondo después de cualquier actualización."
+
+#: typeform-quizzes.php:220
+msgid "Typeform Quizzes - Environment Issues Detected:"
+msgstr ""
+
+#: typeform-quizzes.php:315
+msgid "No URL set"
+msgstr ""
+
+#: typeform-quizzes.php:353
+msgid "Change Order"
+msgstr ""
+
+#: typeform-quizzes.php:407
+msgid "Invalid request method"
+msgstr ""
+
+#: typeform-quizzes.php:416
+msgid "Missing security nonce"
+msgstr ""
+
+#: typeform-quizzes.php:424
+msgid "Invalid security nonce"
+msgstr ""
+
+#: typeform-quizzes.php:432
+msgid "Insufficient permissions"
+msgstr ""
+
+#: typeform-quizzes.php:438
+msgid "Rate limit exceeded"
+msgstr ""
+
+#: typeform-quizzes.php:547
+msgid "Invalid action type"
+msgstr ""
+
+#: typeform-quizzes.php:586
+msgid "Missing order data"
+msgstr ""
+
+#: typeform-quizzes.php:595
+msgid "Invalid JSON data: "
+msgstr ""
+
+#: typeform-quizzes.php:602
+msgid "Invalid order data format"
+msgstr ""
+
+#: typeform-quizzes.php:609
+msgid "No order data provided"
+msgstr ""
+
+#: typeform-quizzes.php:619
+msgid "Database connection failed"
+msgstr ""
+
+#: typeform-quizzes.php:642
+msgid "No valid quiz IDs to update"
+msgstr ""
+
+#: typeform-quizzes.php:667
+msgid "Failed to update quiz order: "
+msgstr ""
+
+#: typeform-quizzes.php:686
+msgid "Invalid action: "
+msgstr ""
+
+#: typeform-quizzes.php:693
+msgid "Error: "
+msgstr ""
+
+#: typeform-quizzes.php:699
+msgid "Fatal error: "
+msgstr ""
+
+#: typeform-quizzes.php:790
+msgid "Typeform URL"
+msgstr ""
+
+#: typeform-quizzes.php:792
+msgid "Enter the full Typeform URL for this quiz."
+msgstr ""
+
+#: typeform-quizzes.php:795
+msgid "Display Order"
+msgstr ""
+
+#: typeform-quizzes.php:797
+msgid "Lower numbers appear first in the slider (0 = first)."
+msgstr ""
+
+#: typeform-quizzes.php:797
+msgid "Tip:"
+msgstr ""
+
+#: typeform-quizzes.php:797
+msgid "Use the \"Change Order\" button on the quizzes list page for easier reordering with drag & drop."
+msgstr ""
+
+#: typeform-quizzes.php:988
+msgid "This plugin requires PHP 7.4 or higher. Your current version is"
+msgstr ""
+
+#: typeform-quizzes.php:997
+msgid "This plugin requires WordPress 5.0 or higher. Your current version is"
+msgstr ""
+
+#: typeform-quizzes.php:1096
+msgid "Welcome to Typeform Quizzes!"
+msgstr ""
+
+#: typeform-quizzes.php:1096
+msgid "You haven't created any quizzes yet."
+msgstr ""
+
+#: typeform-quizzes.php:1097
+msgid "Create Your First Quiz"
+msgstr ""
+
+#: typeform-quizzes.php:1331
+#: typeform-quizzes.php:1989
+#: typeform-quizzes.php:2042
+msgid "Forbidden"
+msgstr ""
+
+#: typeform-quizzes.php:1339
+msgid "Default shortcode settings saved successfully."
+msgstr ""
+
+#: typeform-quizzes.php:1344
+msgid "Typeform Quizzes Settings"
+msgstr ""
+
+#: typeform-quizzes.php:1352
+#: typeform-quizzes.php:1354
+#: typeform-quizzes.php:1357
+msgid "Success!"
+msgstr ""
+
+#: typeform-quizzes.php:1352
+msgid "Quiz settings saved successfully."
+msgstr ""
+
+#: typeform-quizzes.php:1354
+#: typeform-quizzes.php:1357
+msgid "Settings saved successfully."
+msgstr ""
+
+#: typeform-quizzes.php:1375
+msgid "Quiz Management"
+msgstr ""
+
+#: typeform-quizzes.php:1378
+msgid "Create and manage your Typeform Quizzes. Each quiz needs a Typeform URL and can have a featured image."
+msgstr ""
+
+#: typeform-quizzes.php:1382
+msgid "Manage Quizzes"
+msgstr ""
+
+#: typeform-quizzes.php:1385
+msgid "Add New Quiz"
+msgstr ""
+
+#: typeform-quizzes.php:1393
+#: typeform-quizzes.php:1399
+msgid "Default Shortcode Settings"
+msgstr ""
+
+#: typeform-quizzes.php:1396
+msgid "Configure default values for all shortcode parameters. These settings will be used when no specific values are provided in the shortcode."
+msgstr ""
+
+#: typeform-quizzes.php:1408
+msgid "Basic Configuration"
+msgstr ""
+
+#: typeform-quizzes.php:1413
+msgid "Maximum Quizzes"
+msgstr ""
+
+#: typeform-quizzes.php:1419
+msgid "Maximum number of quizzes to display (default: 20)"
+msgstr ""
+
+#: typeform-quizzes.php:1424
+msgid "Quiz Order"
+msgstr ""
+
+#: typeform-quizzes.php:1428
+msgid "Custom order (by quiz order field)"
+msgstr ""
+
+#: typeform-quizzes.php:1429
+msgid "Published date (newest first)"
+msgstr ""
+
+#: typeform-quizzes.php:1430
+msgid "Title (A-Z)"
+msgstr ""
+
+#: typeform-quizzes.php:1431
+msgid "Random"
+msgstr ""
+
+#: typeform-quizzes.php:1433
+msgid "How quizzes should be ordered in the slider"
+msgstr ""
+
+#: typeform-quizzes.php:1438
+msgid "Center Quiz on Click"
+msgstr ""
+
+#: typeform-quizzes.php:1444
+msgid "Center the quiz viewer when a quiz is clicked (default: enabled)"
+msgstr ""
+
+#: typeform-quizzes.php:1451
+msgid "Layout & Grid Settings"
+msgstr ""
+
+#: typeform-quizzes.php:1456
+msgid "Maximum Width (px)"
+msgstr ""
+
+#: typeform-quizzes.php:1462
+msgid "Maximum width of the slider container (default: 1450px)"
+msgstr ""
+
+#: typeform-quizzes.php:1467
+msgid "Desktop Columns"
+msgstr ""
+
+#: typeform-quizzes.php:1473
+msgid "Number of quizzes visible per row on desktop screens (default: 6)"
+msgstr ""
+
+#: typeform-quizzes.php:1478
+msgid "Tablet Columns"
+msgstr ""
+
+#: typeform-quizzes.php:1484
+msgid "Number of quizzes visible per row on tablet screens (default: 3)"
+msgstr ""
+
+#: typeform-quizzes.php:1489
+msgid "Mobile Columns"
+msgstr ""
+
+#: typeform-quizzes.php:1495
+msgid "Number of quizzes visible per row on mobile screens (default: 2)"
+msgstr ""
+
+#: typeform-quizzes.php:1500
+msgid "Gap Between Items (px)"
+msgstr ""
+
+#: typeform-quizzes.php:1506
+msgid "Space between quiz items (default: 20px)"
+msgstr ""
+
+#: typeform-quizzes.php:1513
+msgid "Thumbnail Settings"
+msgstr ""
+
+#: typeform-quizzes.php:1518
+msgid "Thumbnail Height (px)"
+msgstr ""
+
+#: typeform-quizzes.php:1524
+msgid "Height of quiz thumbnails in pixels (default: 200px)"
+msgstr ""
+
+#: typeform-quizzes.php:1531
+msgid "Visual Styling"
+msgstr ""
+
+#: typeform-quizzes.php:1536
+msgid "Thumbnail Border Radius (px)"
+msgstr ""
+
+#: typeform-quizzes.php:1542
+msgid "Border radius for thumbnail images (default: 16px)"
+msgstr ""
+
+#: typeform-quizzes.php:1547
+msgid "Title Color"
+msgstr ""
+
+#: typeform-quizzes.php:1553
+msgid "Color of quiz titles (default: #000000)"
+msgstr ""
+
+#: typeform-quizzes.php:1558
+msgid "Title Hover Color"
+msgstr ""
+
+#: typeform-quizzes.php:1564
+msgid "Color of quiz titles on hover (default: #777777)"
+msgstr ""
+
+#: typeform-quizzes.php:1569
+msgid "Active Slide Border Color"
+msgstr ""
+
+#: typeform-quizzes.php:1575
+msgid "Border color for the active/selected quiz slide (default: #0073aa)"
+msgstr ""
+
+#: typeform-quizzes.php:1580
+msgid "Darken Inactive Slides"
+msgstr ""
+
+#: typeform-quizzes.php:1585
+msgid "Apply a dark overlay to inactive quiz slides to make the active quiz stand out (default: enabled)"
+msgstr ""
+
+#: typeform-quizzes.php:1592
+msgid "Control Spacing"
+msgstr ""
+
+#: typeform-quizzes.php:1597
+msgid "Desktop Controls Spacing (px)"
+msgstr ""
+
+#: typeform-quizzes.php:1603
+msgid "Space between pagination dots and next/prev buttons on desktop screens (default: 56px)"
+msgstr ""
+
+#: typeform-quizzes.php:1608
+msgid "Tablet Controls Spacing (px)"
+msgstr ""
+
+#: typeform-quizzes.php:1614
+msgid "Space between pagination dots and next/prev buttons on tablet screens (default: 56px)"
+msgstr ""
+
+#: typeform-quizzes.php:1619
+msgid "Controls Bottom Spacing (px)"
+msgstr ""
+
+#: typeform-quizzes.php:1625
+msgid "Space between bottom of slider and controls (default: 20px)"
+msgstr ""
+
+#: typeform-quizzes.php:1632
+msgid "Arrow Button Styling"
+msgstr ""
+
+#: typeform-quizzes.php:1637
+msgid "Arrow Border Radius (px)"
+msgstr ""
+
+#: typeform-quizzes.php:1643
+msgid "Border radius for arrow buttons (default: 0px)"
+msgstr ""
+
+#: typeform-quizzes.php:1648
+msgid "Arrow Padding (px)"
+msgstr ""
+
+#: typeform-quizzes.php:1654
+msgid "Internal padding for arrow buttons (default: 3px)"
+msgstr ""
+
+#: typeform-quizzes.php:1659
+msgid "Arrow Width (px)"
+msgstr ""
+
+#: typeform-quizzes.php:1665
+msgid "Width of arrow buttons (default: 35px). The arrow icon will be automatically centered within this width."
+msgstr ""
+
+#: typeform-quizzes.php:1670
+msgid "Arrow Height (px)"
+msgstr ""
+
+#: typeform-quizzes.php:1676
+msgid "Height of arrow buttons (default: 35px). The arrow icon will be automatically centered within this height."
+msgstr ""
+
+#: typeform-quizzes.php:1786
+msgid "Save Default Settings"
+msgstr ""
+
+#: typeform-quizzes.php:1793
+msgid "Export & Import Quizzes"
+msgstr ""
+
+#: typeform-quizzes.php:1796
+msgid "Export your quizzes to a JSON file for backup or transfer to another site. Import quizzes from a previously exported file."
+msgstr ""
+
+#: typeform-quizzes.php:1803
+msgid "Export Quizzes"
+msgstr ""
+
+#: typeform-quizzes.php:1806
+msgid "Download all your quizzes as a JSON file for backup or migration."
+msgstr ""
+
+#: typeform-quizzes.php:1812
+msgid "Download Quiz Export"
+msgstr ""
+
+#: typeform-quizzes.php:1820
+msgid "Import Quizzes"
+msgstr ""
+
+#: typeform-quizzes.php:1823
+msgid "Upload a previously exported JSON file to import quizzes."
+msgstr ""
+
+#: typeform-quizzes.php:1832
+msgid "Overwrite existing quizzes with same title"
+msgstr ""
+
+#: typeform-quizzes.php:1835
+msgid "Upload & Import"
+msgstr ""
+
+#: typeform-quizzes.php:1989
+#: typeform-quizzes.php:2042
+msgid "Security check failed"
+msgstr ""
+
+#: typeform-quizzes.php:2048
+msgid "Error uploading file. Please try again."
+msgstr ""
