@@ -9,6 +9,8 @@
 
 namespace MTI\TypeformQuizzes\Frontend\Shortcodes;
 
+use MTI\TypeformQuizzes\Frontend\Pagination\Dots;
+
 // Prevent direct access
 if (!defined('ABSPATH')) {
     exit('Direct access forbidden.');
@@ -160,9 +162,7 @@ class SliderRenderer
                     </button>
 
                     <!-- Pagination dots centered -->
-                    <div class="pagination-container">
-                        <div class="swiper-pagination tfqpagination"></div>
-                    </div>
+                    <?php echo Dots::markup($slider_id); ?>
                     
                     <button class="tfqrow-arrow tfqrow-arrow-next" data-dir="next" aria-label="Next" data-bg-color="<?php echo $arrow_bg_color; ?>" data-hover-bg-color="<?php echo $arrow_hover_bg_color; ?>" data-icon-color="<?php echo $arrow_icon_color; ?>" data-hover-icon-color="<?php echo $arrow_icon_hover_color; ?>">
                         <i class="fa-solid fa-angle-right"></i>
@@ -176,6 +176,20 @@ class SliderRenderer
         <!-- Inline JavaScript moved to typeform-quizzes.js -->
         <?php
         $output = ob_get_clean();
+        
+        // Add pagination JavaScript initialization
+        $swiperParams = [
+            'paginationDotColor' => $pagination_dot_color,
+            'paginationActiveDotColor' => $pagination_active_dot_color,
+            'paginationDotSize' => $pagination_dot_size,
+            'paginationDotGap' => $pagination_dot_gap,
+            'colsDesktop' => $cols_desktop,
+            'colsTablet' => $cols_tablet,
+            'colsMobile' => $cols_mobile,
+            'gap' => $gap
+        ];
+        
+        $output .= Dots::script($slider_id, $swiperParams);
         
         // Clean any potential PHP errors/warnings from output
         $output = preg_replace('/^.*?(<div class="typeform-quizzes-slider-container")/s', '$1', $output);

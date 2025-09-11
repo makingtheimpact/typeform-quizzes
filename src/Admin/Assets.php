@@ -73,9 +73,9 @@ class Assets
 
         return "
         jQuery(document).ready(function($) {
-            let reorderModal = $('#typeform-quizzes-reorder-modal');
-            let reorderList = $('#typeform-quizzes-reorder-list');
-            let isDirty = false;
+            var reorderModal = $('#typeform-quizzes-reorder-modal');
+            var reorderList = $('#reorder-list');
+            var isDirty = false;
             
             // Open modal
             $('#reorder-quizzes-btn').on('click', function() {
@@ -115,13 +115,38 @@ class Assets
                     url: '{$ajax_url}',
                     type: 'POST',
                     data: {
-                        action: 'typeform_quiz_get_quizzes_for_reorder',
+                        action: 'typeform_quiz_reorder',
+                        action_type: 'get_quizzes',
                         nonce: '{$nonce}'
                     },
                     success: function(response) {
                         if (response.success) {
-                            reorderList.html(response.data.html);
-                            initSortable();
+                            // Build HTML from quiz data
+                            var html = '';
+                            if (response.data && response.data.length > 0) {
+                                response.data.forEach(function(quiz, index) {
+                                    html += '<li data-quiz-id=\"' + quiz.id + '\" class=\"quiz-reorder-item\">';
+                                    html += '<span class=\"dashicons dashicons-menu\" style=\"margin-right: 10px; color: #666; cursor: move;\"></span>';
+                                    html += '<div class=\"quiz-item\" style=\"display: flex; align-items: center; flex: 1;\">';
+                                    if (quiz.thumbnail) {
+                                        html += '<img src=\"' + quiz.thumbnail + '\" alt=\"' + quiz.title + '\" class=\"quiz-thumbnail\" style=\"width: 50px; height: 50px; border-radius: 4px; margin-right: 15px; object-fit: cover;\">';
+                                    }
+                                    html += '<div style=\"flex: 1;\">';
+                                    html += '<div class=\"quiz-title\" style=\"font-weight: 500; color: #333; margin-bottom: 5px;\">' + quiz.title + '</div>';
+                                    html += '<div class=\"quiz-order\" style=\"font-size: 12px; color: #666;\">Order: ' + (index + 1) + '</div>';
+                                    html += '</div>';
+                                    html += '</div>';
+                                    html += '</li>';
+                                });
+                                reorderList.html(html);
+                                
+                                // Update quiz count
+                                $('#quiz-count').text(response.data.length + ' quizzes');
+                                
+                                initSortable();
+                            } else {
+                                reorderList.html('<li>No quizzes found</li>');
+                            }
                         } else {
                             alert('Error loading quizzes: ' + response.data);
                         }
@@ -143,13 +168,21 @@ class Assets
                     },
                     update: function(event, ui) {
                         isDirty = true;
+                        updateOrderNumbers();
                     }
                 });
             }
             
+            // Update order numbers after sorting
+            function updateOrderNumbers() {
+                reorderList.find('li').each(function(index) {
+                    $(this).find('.quiz-order').text('Order: ' + (index + 1));
+                });
+            }
+            
             // Save reorder
-            $('#save-quiz-reorder').on('click', function() {
-                let order = [];
+            $('#typeform-quizzes-save-reorder').on('click', function() {
+                var order = [];
                 reorderList.find('li').each(function() {
                     order.push($(this).data('quiz-id'));
                 });
@@ -158,16 +191,24 @@ class Assets
                     url: '{$ajax_url}',
                     type: 'POST',
                     data: {
-                        action: 'typeform_quiz_save_reorder',
-                        nonce: '{$nonce}',
-                        order: order
+                        action: 'typeform_quiz_reorder',
+                        action_type: 'save_order',
+                        order_data: JSON.stringify(order),
+                        nonce: '{$nonce}'
                     },
                     success: function(response) {
                         if (response.success) {
-                            alert('Quiz order saved successfully!');
-                            reorderModal.hide();
-                            isDirty = false;
-                            location.reload();
+                            // Show success message
+                            var button = $('#typeform-quizzes-save-reorder');
+                            var originalText = button.text();
+                            button.text('Saved!').css('background-color', '#46b450');
+                            
+                            setTimeout(function() {
+                                button.text(originalText).css('background-color', '');
+                                reorderModal.hide();
+                                isDirty = false;
+                                location.reload();
+                            }, 1500);
                         } else {
                             alert('Error saving order: ' + response.data);
                         }
@@ -308,6 +349,54 @@ class Assets
             margin-left: 10px;
             color: #666;
             font-size: 12px;
+        }
+        
+        .quiz-reorder-item {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 5px 0;
+            display: flex;
+            align-items: center;
+            transition: all 0.2s ease;
+            list-style: none;
+        }
+        
+        .quiz-reorder-item:hover {
+            border-color: #0073aa;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .quiz-reorder-item .dashicons-menu {
+            margin-right: 10px;
+            color: #666;
+            cursor: move;
+        }
+        
+        .quiz-reorder-item .quiz-item {
+            display: flex;
+            align-items: center;
+            flex: 1;
+        }
+        
+        .quiz-reorder-item .quiz-thumbnail {
+            width: 50px;
+            height: 50px;
+            border-radius: 4px;
+            margin-right: 15px;
+            object-fit: cover;
+        }
+        
+        .quiz-reorder-item .quiz-title {
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .quiz-reorder-item .quiz-order {
+            font-size: 12px;
+            color: #666;
         }
         
         .reorder-modal-buttons {

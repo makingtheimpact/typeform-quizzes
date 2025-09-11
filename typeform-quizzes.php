@@ -696,6 +696,10 @@ final class Typeform_Quizzes {
                 'order' => 'ASC'
             ]);
             
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('Typeform Quizzes AJAX: Found ' . count($quizzes) . ' quizzes');
+            }
+            
             $quiz_data = [];
             foreach ($quizzes as $quiz) {
                 $quiz_data[] = [
@@ -704,6 +708,10 @@ final class Typeform_Quizzes {
                     'menu_order' => $quiz->menu_order,
                     'thumbnail' => get_the_post_thumbnail_url($quiz->ID, [50, 50]) ?: ''
                 ];
+            }
+            
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('Typeform Quizzes AJAX: Quiz data: ' . print_r($quiz_data, true));
             }
             
             wp_send_json_success($quiz_data);
