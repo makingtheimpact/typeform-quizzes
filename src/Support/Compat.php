@@ -180,6 +180,7 @@ if (!function_exists('tfq_render_error')) {
      * @return string HTML error message
      */
     function tfq_render_error($message) {
+        if (function_exists('_deprecated_function')) _deprecated_function(__FUNCTION__, TFQ_VERSION);
         return \MTI\TypeformQuizzes\Frontend\Shortcodes\ErrorHandler::render_error($message);
     }
 }
@@ -192,6 +193,7 @@ if (!function_exists('tfq_log_error')) {
      * @return void
      */
     function tfq_log_error($message) {
+        if (function_exists('_deprecated_function')) _deprecated_function(__FUNCTION__, TFQ_VERSION);
         \MTI\TypeformQuizzes\Frontend\Shortcodes\ErrorHandler::log_error($message);
     }
 }
@@ -205,6 +207,7 @@ if (!function_exists('tfq_enqueue_slider_assets')) {
      * @return void
      */
     function tfq_enqueue_slider_assets($atts = []) {
+        if (function_exists('_deprecated_function')) _deprecated_function(__FUNCTION__, TFQ_VERSION);
         \MTI\TypeformQuizzes\Frontend\Shortcodes\AssetManager::enqueue_slider_assets($atts);
     }
 }
@@ -218,6 +221,7 @@ if (!function_exists('tfq_is_valid_typeform_url')) {
      * @return bool True if valid, false otherwise
      */
     function tfq_is_valid_typeform_url($url) {
+        if (function_exists('_deprecated_function')) _deprecated_function(__FUNCTION__, TFQ_VERSION);
         return \MTI\TypeformQuizzes\Frontend\Shortcodes\QuizRetriever::is_valid_typeform_url($url);
     }
 }
@@ -230,6 +234,7 @@ if (!function_exists('tfq_get_embed_url')) {
      * @return string Embed URL
      */
     function tfq_get_embed_url($url) {
+        if (function_exists('_deprecated_function')) _deprecated_function(__FUNCTION__, TFQ_VERSION);
         return \MTI\TypeformQuizzes\Frontend\Shortcodes\SliderRenderer::get_embed_url($url);
     }
 }
@@ -242,6 +247,7 @@ if (!function_exists('tfq_is_local_development')) {
      * @return bool True if local development, false otherwise
      */
     function tfq_is_local_development() {
+        if (function_exists('_deprecated_function')) _deprecated_function(__FUNCTION__, TFQ_VERSION);
         return \MTI\TypeformQuizzes\Frontend\Shortcodes\SliderRenderer::is_local_development();
     }
 }
@@ -257,6 +263,7 @@ if (!function_exists('tfq_render_field_max')) {
      * @return void
      */
     function tfq_render_field_max() {
+        if (function_exists('_deprecated_function')) _deprecated_function(__FUNCTION__, TFQ_VERSION);
         \MTI\TypeformQuizzes\Admin\SettingsPage::field_max();
     }
 }
@@ -268,6 +275,7 @@ if (!function_exists('tfq_render_field_order')) {
      * @return void
      */
     function tfq_render_field_order() {
+        if (function_exists('_deprecated_function')) _deprecated_function(__FUNCTION__, TFQ_VERSION);
         \MTI\TypeformQuizzes\Admin\SettingsPage::field_order();
     }
 }
@@ -279,6 +287,7 @@ if (!function_exists('tfq_render_field_center_on_click')) {
      * @return void
      */
     function tfq_render_field_center_on_click() {
+        if (function_exists('_deprecated_function')) _deprecated_function(__FUNCTION__, TFQ_VERSION);
         \MTI\TypeformQuizzes\Admin\SettingsPage::field_center_on_click();
     }
 }
@@ -291,6 +300,7 @@ if (!function_exists('tfq_render_field_max_width')) {
      * @return void
      */
     function tfq_render_field_max_width() {
+        if (function_exists('_deprecated_function')) _deprecated_function(__FUNCTION__, TFQ_VERSION);
         \MTI\TypeformQuizzes\Admin\SettingsPage::field_max_width();
     }
 }
