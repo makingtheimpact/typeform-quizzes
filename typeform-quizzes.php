@@ -45,6 +45,9 @@ define('TFQ_VERSION', filemtime(__FILE__) ?: '1.1.0');
 // Require autoloader
 require_once TFQ_PLUGIN_DIR . 'src/autoload.php';
 
+// Load compatibility layer
+require_once TFQ_PLUGIN_DIR . 'src/Support/Compat.php';
+
 // Boot the plugin
 MTI\TypeformQuizzes\Plugin::instance()->boot();
 
@@ -123,7 +126,124 @@ final class Typeform_Quizzes {
         
         // moved to Frontend/Admin Assets
         add_shortcode('typeform_quiz', [__CLASS__, 'render_typeform_quiz']);
-        // moved to Shortcodes\TypeformQuizzesShortcode
+        
+        // Keep the original shortcode registration in place
+        if (!function_exists('typeform_quizzes_shortcode')) {
+            function typeform_quizzes_shortcode($atts, $content = '') {
+                // NEW: delegate to the class, but pass control right back to legacy code as needed
+                return \MTI\TypeformQuizzes\Frontend\Shortcodes\TypeformQuizzesShortcode::render_via_legacy($atts, $content);
+            }
+        }
+        add_shortcode('typeform_quizzes_slider', 'typeform_quizzes_shortcode');
+        
+        // Legacy bridge function for progressive migration
+        if (!function_exists('typeform_quizzes_shortcode_legacy_body')) {
+            function typeform_quizzes_shortcode_legacy_body($atts, $content = '') {
+                // PASTE the current code from inside your original shortcode callback here
+                // Return the final HTML string it produced
+                try {
+                    // Validate and sanitize input
+                    if (!is_array($atts)) {
+                        $atts = [];
+                    }
+                    
+                    // Sanitize all input attributes
+                    $atts = \Typeform_Quizzes::sanitize_shortcode_attributes($atts);
+                    
+                    // Get defaults from admin settings
+                    $defaults = get_option('typeform_quizzes_defaults', []);
+                    
+                    // Debug logging
+                    if (defined('WP_DEBUG') && WP_DEBUG) {
+                        error_log('Typeform Quizzes: Admin defaults: ' . print_r($defaults, true));
+                        error_log('Typeform Quizzes: Shortcode atts before processing: ' . print_r($atts, true));
+                    }
+                    
+                    $atts = shortcode_atts([
+                        'max' => $defaults['max'] ?? 20,
+                        'max_width' => $defaults['max_width'] ?? 1450,
+                        'thumb_height' => $defaults['thumb_height'] ?? 200,
+                        'cols_desktop' => $defaults['cols_desktop'] ?? 6,
+                        'cols_tablet' => $defaults['cols_tablet'] ?? 3,
+                        'cols_mobile' => $defaults['cols_mobile'] ?? 2,
+                        'gap' => $defaults['gap'] ?? 20,
+                        'center_on_click' => $defaults['center_on_click'] ?? true,
+                        'border_radius' => $defaults['border_radius'] ?? 16,
+                        'title_color' => $defaults['title_color'] ?? '#000000',
+                        'title_hover_color' => $defaults['title_hover_color'] ?? '#777777',
+                        'controls_spacing' => $defaults['controls_spacing'] ?? 56,
+                        'controls_spacing_tablet' => $defaults['controls_spacing_tablet'] ?? 56,
+                        'controls_bottom_spacing' => $defaults['controls_bottom_spacing'] ?? 20,
+                        'arrow_border_radius' => $defaults['arrow_border_radius'] ?? 0,
+                        'arrow_padding' => $defaults['arrow_padding'] ?? 3,
+                        'arrow_width' => $defaults['arrow_width'] ?? 35,
+                        'arrow_height' => $defaults['arrow_height'] ?? 35,
+                        'arrow_bg_color' => $defaults['arrow_bg_color'] ?? '#111111',
+                        'arrow_hover_bg_color' => $defaults['arrow_hover_bg_color'] ?? '#000000',
+                        'arrow_icon_color' => $defaults['arrow_icon_color'] ?? '#ffffff',
+                        'arrow_icon_hover_color' => $defaults['arrow_icon_hover_color'] ?? '#ffffff',
+                        'arrow_icon_size' => $defaults['arrow_icon_size'] ?? 28,
+                        'pagination_dot_color' => $defaults['pagination_dot_color'] ?? '#cfcfcf',
+                        'pagination_active_dot_color' => $defaults['pagination_active_dot_color'] ?? '#111111',
+                        'pagination_dot_gap' => $defaults['pagination_dot_gap'] ?? 10,
+                        'pagination_dot_size' => $defaults['pagination_dot_size'] ?? 8,
+                        'active_slide_border_color' => $defaults['active_slide_border_color'] ?? '#0073aa',
+                        'darken_inactive_slides' => $defaults['darken_inactive_slides'] ?? 1,
+                        'order' => $defaults['order'] ?? 'menu_order'
+                    ], $atts, 'typeform_quizzes_slider');
+
+                    // Validate and sanitize inputs with proper bounds checking
+                    $max_quizzes = min(max(intval($atts['max']), 1), \Typeform_Quizzes::MAX_QUIZZES_LIMIT);
+                    
+                    // Debug logging
+                    if (defined('WP_DEBUG') && WP_DEBUG) {
+                        error_log('Typeform Quizzes: Final max_quizzes value: ' . $max_quizzes);
+                    }
+                    $max_width = min(max(intval($atts['max_width']), 200), 2000);
+                    $thumb_height = min(max(intval($atts['thumb_height']), 50), 1000);
+                    
+                    // Validate column settings
+                    $cols_desktop = min(max(intval($atts['cols_desktop']), 1), 12);
+                    $cols_tablet = min(max(intval($atts['cols_tablet']), 1), 8);
+                    $cols_mobile = min(max(intval($atts['cols_mobile']), 1), 4);
+                    
+                    $gap = min(max(intval($atts['gap']), 0), 100);
+                    $center_on_click = (bool) $atts['center_on_click'];
+                    
+                    // Validate order parameter
+                    $valid_orders = ['menu_order', 'date', 'title', 'rand'];
+                    $order = in_array($atts['order'], $valid_orders) ? $atts['order'] : 'menu_order';
+
+                    // Get quizzes
+                    $quizzes = \MTI\TypeformQuizzes\Frontend\Shortcodes\QuizRetriever::get_quizzes($max_quizzes, $order);
+                    
+                    if (empty($quizzes)) {
+                        return \MTI\TypeformQuizzes\Frontend\Shortcodes\ErrorHandler::render_error('No quizzes found. Please add some Typeform Quizzes first.');
+                    }
+
+                    // Generate unique ID for this slider instance
+                    $slider_id = 'tfq-slider-' . uniqid();
+                    
+                    // Enqueue scripts and styles
+                    \MTI\TypeformQuizzes\Frontend\Shortcodes\AssetManager::enqueue_slider_assets($atts);
+
+                    // Render the slider
+                    return \MTI\TypeformQuizzes\Frontend\Shortcodes\SliderRenderer::render_quizzes_slider_html($quizzes, $slider_id, $atts, $max_width, $thumb_height, $cols_desktop, $cols_tablet, $cols_mobile, $gap, $center_on_click);
+
+                } catch (Exception $e) {
+                    \MTI\TypeformQuizzes\Frontend\Shortcodes\ErrorHandler::log_error('Quiz slider error: ' . $e->getMessage());
+                    return \MTI\TypeformQuizzes\Frontend\Shortcodes\ErrorHandler::render_error('An error occurred while loading the quiz slider.');
+                }
+            }
+        }
+        
+        // Context builder for progressive migration
+        if (!function_exists('tfq_build_shortcode_context')) {
+            function tfq_build_shortcode_context($atts, $content = ''): array {
+                return \MTI\TypeformQuizzes\Frontend\Shortcodes\ContextBuilder::build_shortcode_context($atts, $content);
+            }
+        }
+        
         add_action('admin_init', [__CLASS__, 'register_settings']);
         add_action('admin_init', [__CLASS__, 'handle_settings_save']);
         
@@ -487,7 +607,7 @@ final class Typeform_Quizzes {
     /**
      * Sanitize shortcode attributes
      */
-    private static function sanitize_shortcode_attributes($atts) {
+    public static function sanitize_shortcode_attributes($atts) {
         $sanitized = [];
         
         foreach ($atts as $key => $value) {
@@ -1049,7 +1169,7 @@ final class Typeform_Quizzes {
     /**
      * Log errors for display
      */
-    private static function log_error($message) {
+    public static function log_error($message) {
         $log_message = 'Typeform Quizzes: ' . $message;
         
         if (defined('WP_DEBUG') && WP_DEBUG) {
@@ -1214,7 +1334,7 @@ final class Typeform_Quizzes {
      * @param string $url The URL to validate
      * @return bool True if valid Typeform URL, false otherwise
      */
-    private static function is_valid_typeform_url($url) {
+    public static function is_valid_typeform_url($url) {
         if (empty($url)) {
             return false;
         }
@@ -1242,7 +1362,7 @@ final class Typeform_Quizzes {
      * @param string $message The error message to display
      * @return string HTML for the error message
      */
-    private static function render_error($message) {
+    public static function render_error($message) {
         return '<div class="typeform-quizzes-error typeform-quizzes-error-message">' . 
                esc_html($message) . 
                '</div>';
@@ -2990,7 +3110,7 @@ final class Typeform_Quizzes {
     /**
      * Get quizzes from database
      */
-    private static function get_quizzes($max_quizzes, $order) {
+    public static function get_quizzes($max_quizzes, $order) {
 
         // Check if post type exists
         if (!post_type_exists('typeform_quiz')) {
@@ -3113,7 +3233,7 @@ final class Typeform_Quizzes {
     /**
      * Get embed URL for Typeform
      */
-    private static function get_embed_url($url) {
+    public static function get_embed_url($url) {
         if (empty($url)) {
             return '';
         }
@@ -3149,7 +3269,7 @@ final class Typeform_Quizzes {
     /**
      * Check if we're in a local development environment
      */
-    private static function is_local_development() {
+    public static function is_local_development() {
         $host = $_SERVER['HTTP_HOST'] ?? '';
         $is_local = (
             strpos($host, 'localhost') !== false ||
@@ -3342,7 +3462,7 @@ final class Typeform_Quizzes {
     /**
      * Enqueue slider assets with fallback handling
      */
-    private static function enqueue_slider_assets($atts = []) {
+    public static function enqueue_slider_assets($atts = []) {
         // moved to Frontend/Admin Assets
         return;
         
@@ -3549,7 +3669,7 @@ final class Typeform_Quizzes {
     /**
      * Render quizzes slider HTML
      */
-    private static function render_quizzes_slider_html($quizzes, $slider_id, $atts, $max_width, $thumb_height, $cols_desktop, $cols_tablet, $cols_mobile, $gap, $center_on_click) {
+    public static function render_quizzes_slider_html($quizzes, $slider_id, $atts, $max_width, $thumb_height, $cols_desktop, $cols_tablet, $cols_mobile, $gap, $center_on_click) {
         $border_radius = intval($atts['border_radius']);
         $title_color = sanitize_hex_color($atts['title_color']);
         $title_hover_color = sanitize_hex_color($atts['title_hover_color']);

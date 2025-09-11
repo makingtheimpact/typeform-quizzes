@@ -54,9 +54,6 @@ class Plugin
         
         // Initialize admin assets
         \MTI\TypeformQuizzes\Admin\Assets::init();
-        
-        // Initialize shortcodes
-        \MTI\TypeformQuizzes\Frontend\Shortcodes\TypeformQuizzesShortcode::register();
     }
 
     /**
