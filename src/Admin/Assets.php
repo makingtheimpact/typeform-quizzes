@@ -72,7 +72,7 @@ class Assets
     public static function get_reorder_script()
     {
         $ajax_url = admin_url('admin-ajax.php');
-        $nonce = wp_create_nonce('typeform_quiz_reorder');
+        $nonce = wp_create_nonce('tfq_reorder');
 
         return "
         jQuery(document).ready(function($) {
@@ -118,7 +118,7 @@ class Assets
                     url: '{$ajax_url}',
                     type: 'POST',
                     data: {
-                        action: 'typeform_quiz_reorder',
+                        action: 'tfq_reorder',
                         action_type: 'get_quizzes',
                         nonce: '{$nonce}'
                     },
@@ -194,7 +194,7 @@ class Assets
                     url: '{$ajax_url}',
                     type: 'POST',
                     data: {
-                        action: 'typeform_quiz_reorder',
+                        action: 'tfq_reorder',
                         action_type: 'save_order',
                         order_data: JSON.stringify(order),
                         nonce: '{$nonce}'

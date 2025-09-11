@@ -11,31 +11,29 @@ $cols_mobile = $ctx['cols_mobile'];
 $gap = $ctx['gap'];
 $center_on_click = $ctx['center_on_click'];
 
-// Extract styling attributes
-$border_radius = intval($atts['border_radius']);
-$title_color = sanitize_hex_color($atts['title_color']);
-$title_hover_color = sanitize_hex_color($atts['title_hover_color']);
-$controls_spacing = intval($atts['controls_spacing']);
-$controls_spacing_tablet = intval($atts['controls_spacing_tablet']);
-$controls_bottom_spacing = intval($atts['controls_bottom_spacing']);
-$arrow_border_radius = intval($atts['arrow_border_radius']);
-$arrow_padding = intval($atts['arrow_padding']);
-$arrow_width = intval($atts['arrow_width']);
-$arrow_height = intval($atts['arrow_height']);
-$arrow_bg_color = sanitize_hex_color($atts['arrow_bg_color']);
-$arrow_hover_bg_color = sanitize_hex_color($atts['arrow_hover_bg_color']);
-$arrow_icon_color = sanitize_hex_color($atts['arrow_icon_color']);
-$arrow_icon_hover_color = sanitize_hex_color($atts['arrow_icon_hover_color']);
-$arrow_icon_size = intval($atts['arrow_icon_size']);
-$pagination_dot_color = sanitize_hex_color($atts['pagination_dot_color']);
-$pagination_active_dot_color = sanitize_hex_color($atts['pagination_active_dot_color']);
-$pagination_dot_gap = min(max(intval($atts['pagination_dot_gap']), 0), 50);
-$pagination_dot_size = min(max(intval($atts['pagination_dot_size']), 4), 20);
-$active_slide_border_color = sanitize_hex_color($atts['active_slide_border_color']);
-$darken_inactive_slides = intval($atts['darken_inactive_slides']);
-
-// Set thumbnail height
-$thumb_height_css = $thumb_height . 'px';
+// Use pre-computed styling attributes from context
+$border_radius = $ctx['border_radius'];
+$title_color = $ctx['title_color'];
+$title_hover_color = $ctx['title_hover_color'];
+$controls_spacing = $ctx['controls_spacing'];
+$controls_spacing_tablet = $ctx['controls_spacing_tablet'];
+$controls_bottom_spacing = $ctx['controls_bottom_spacing'];
+$arrow_border_radius = $ctx['arrow_border_radius'];
+$arrow_padding = $ctx['arrow_padding'];
+$arrow_width = $ctx['arrow_width'];
+$arrow_height = $ctx['arrow_height'];
+$arrow_bg_color = $ctx['arrow_bg_color'];
+$arrow_hover_bg_color = $ctx['arrow_hover_bg_color'];
+$arrow_icon_color = $ctx['arrow_icon_color'];
+$arrow_icon_hover_color = $ctx['arrow_icon_hover_color'];
+$arrow_icon_size = $ctx['arrow_icon_size'];
+$pagination_dot_color = $ctx['pagination_dot_color'];
+$pagination_active_dot_color = $ctx['pagination_active_dot_color'];
+$pagination_dot_gap = $ctx['pagination_dot_gap'];
+$pagination_dot_size = $ctx['pagination_dot_size'];
+$active_slide_border_color = $ctx['active_slide_border_color'];
+$darken_inactive_slides = $ctx['darken_inactive_slides'];
+$thumb_height_css = $ctx['thumb_height_css'];
 ?>
 <div class="typeform-quizzes-slider-container" 
      style="max-width: <?php echo $max_width; ?>px; margin: 0 auto;"
@@ -142,17 +140,6 @@ $thumb_height_css = $thumb_height . 'px';
 </div>
 
 <?php
-// Add pagination JavaScript initialization
-$swiperParams = [
-    'paginationDotColor' => $pagination_dot_color,
-    'paginationActiveDotColor' => $pagination_active_dot_color,
-    'paginationDotSize' => $pagination_dot_size,
-    'paginationDotGap' => $pagination_dot_gap,
-    'colsDesktop' => $cols_desktop,
-    'colsTablet' => $cols_tablet,
-    'colsMobile' => $cols_mobile,
-    'gap' => $gap
-];
-
-echo \MTI\TypeformQuizzes\Frontend\Pagination\Dots::script($slider_id, $swiperParams);
+// Add pagination JavaScript initialization using pre-computed parameters
+echo \MTI\TypeformQuizzes\Frontend\Pagination\Dots::script($slider_id, $ctx['swiper_params']);
 ?>

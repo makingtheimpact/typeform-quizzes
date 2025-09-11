@@ -118,12 +118,8 @@ class QuizRetriever
      * @return array Array of quiz posts
      */
     private static function get_quizzes_custom_order($max_quizzes) {
-        // Only sync if we haven't done it recently (avoid performance issues)
-        $last_sync = get_transient('tfq_order_sync_complete');
-        if (!$last_sync) {
-            self::sync_quiz_order_to_menu_order();
-            set_transient('tfq_order_sync_complete', true, HOUR_IN_SECONDS);
-        }
+        // Note: Removed automatic sync to prevent resetting quiz order on every page load
+        // Sync should only happen during migration or when explicitly needed
         
         // Get all published quizzes ordered by menu_order
         $args = [
@@ -237,25 +233,36 @@ class QuizRetriever
                 
                 $updated_count++;
             } elseif ($meta_order === '' || $meta_order === false) {
-                // If no _quiz_order meta exists, only fix if menu_order is 0 or duplicate
+                // If no _quiz_order meta exists, preserve existing menu_order unless it's 0
                 if ($current_menu_order == 0) {
-                    // Only assign new order if current is 0 (unset)
-                    $order_value = max($used_orders) + 1;
-                    while (in_array($order_value, $used_orders)) {
-                        $order_value++;
+                    // Only assign new order if current is 0 (unset) AND we have other quizzes with order
+                    if (!empty($used_orders)) {
+                        $order_value = max($used_orders) + 1;
+                        while (in_array($order_value, $used_orders)) {
+                            $order_value++;
+                        }
+                        
+                        $used_orders[] = $order_value;
+                        
+                        wp_update_post([
+                            'ID' => $quiz->ID,
+                            'menu_order' => $order_value
+                        ]);
+                        
+                        // Also set the _quiz_order meta to match
+                        update_post_meta($quiz->ID, '_quiz_order', $order_value);
+                        
+                        $updated_count++;
+                    } else {
+                        // If this is the first quiz and no order is set, assign order 1
+                        $used_orders[] = 1;
+                        wp_update_post([
+                            'ID' => $quiz->ID,
+                            'menu_order' => 1
+                        ]);
+                        update_post_meta($quiz->ID, '_quiz_order', 1);
+                        $updated_count++;
                     }
-                    
-                    $used_orders[] = $order_value;
-                    
-                    wp_update_post([
-                        'ID' => $quiz->ID,
-                        'menu_order' => $order_value
-                    ]);
-                    
-                    // Also set the _quiz_order meta to match
-                    update_post_meta($quiz->ID, '_quiz_order', $order_value);
-                    
-                    $updated_count++;
                 } else {
                     // Preserve existing valid menu_order values
                     $used_orders[] = $current_menu_order;

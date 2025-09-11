@@ -57,6 +57,9 @@ class Plugin
         
         // Initialize settings page
         \MTI\TypeformQuizzes\Admin\SettingsPage::init();
+        
+        // Initialize AJAX handlers
+        \MTI\TypeformQuizzes\Api\Ajax\Reorder::init();
     }
 
     /**

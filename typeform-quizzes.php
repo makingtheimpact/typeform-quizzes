@@ -239,7 +239,16 @@ final class Typeform_Quizzes {
         // Context builder for progressive migration
         if (!function_exists('tfq_build_shortcode_context')) {
             function tfq_build_shortcode_context($atts, $content = ''): array {
-                return \MTI\TypeformQuizzes\Frontend\Shortcodes\ContextBuilder::build_shortcode_context($atts, $content);
+                if (function_exists('_deprecated_function')) _deprecated_function(__FUNCTION__, TFQ_VERSION);
+                return \MTI\TypeformQuizzes\Frontend\Shortcodes\ContextBuilder::build((array)$atts, (string)$content);
+            }
+        }
+        
+        // Frontend localization wrapper for progressive migration
+        if (!function_exists('tfq_localize_frontend')) {
+            function tfq_localize_frontend($atts = []) {
+                if (function_exists('_deprecated_function')) _deprecated_function(__FUNCTION__, TFQ_VERSION);
+                return \MTI\TypeformQuizzes\Frontend\Assets::localize_frontend_data((array)$atts);
             }
         }
         
@@ -403,7 +412,10 @@ final class Typeform_Quizzes {
         // Add reorder functionality
         add_action('restrict_manage_posts', [__CLASS__, 'add_reorder_button']);
         add_action('admin_footer', [__CLASS__, 'add_reorder_modal']);
-        add_action('wp_ajax_typeform_quiz_reorder', [__CLASS__, 'handle_reorder_ajax']);
+        // Guard against double-hooking - only register if not already registered
+        if (!has_action('wp_ajax_tfq_reorder')) {
+            add_action('wp_ajax_tfq_reorder', 'tfq_ajax_reorder');
+        }
         
         // Migrate existing order data on admin init
         add_action('admin_init', [__CLASS__, 'migrate_order_data']);
@@ -572,7 +584,7 @@ final class Typeform_Quizzes {
             return false;
         }
         
-        if (!wp_verify_nonce($_POST['nonce'], 'typeform_quiz_reorder')) {
+        if (!wp_verify_nonce($_POST['nonce'], 'tfq_reorder')) {
             if (defined('WP_DEBUG') && WP_DEBUG) {
                 error_log('Typeform Quizzes AJAX: Invalid nonce');
             }
@@ -654,17 +666,16 @@ final class Typeform_Quizzes {
                 case 'pagination_dot_color':
                 case 'pagination_active_dot_color':
                 case 'active_slide_border_color':
-                    $sanitized[$key] = sanitize_hex_color($value);
+                    $sanitized[$key] = \MTI\TypeformQuizzes\Support\Sanitize::hex_color($value);
                     break;
                     
                 case 'center_on_click':
                 case 'darken_inactive_slides':
-                    $sanitized[$key] = rest_sanitize_boolean($value);
+                    $sanitized[$key] = \MTI\TypeformQuizzes\Support\Sanitize::boolean($value);
                     break;
                     
                 case 'order':
-                    $allowed_orders = ['menu_order', 'date', 'title', 'rand'];
-                    $sanitized[$key] = in_array($value, $allowed_orders, true) ? $value : 'menu_order';
+                    $sanitized[$key] = \MTI\TypeformQuizzes\Support\Sanitize::order($value);
                     break;
                     
                 default:
@@ -945,6 +956,11 @@ final class Typeform_Quizzes {
             return;
         }
         
+        // Only run once - check if we've already fixed duplicates
+        if (get_option('typeform_quiz_duplicates_fixed')) {
+            return;
+        }
+        
         // Get all quizzes ordered by menu_order
         $quizzes = get_posts([
             'post_type' => 'typeform_quiz',
@@ -983,6 +999,16 @@ final class Typeform_Quizzes {
         if ($needs_update && defined('WP_DEBUG') && WP_DEBUG) {
             error_log('Typeform Quizzes: Fixed duplicate order values');
         }
+        
+        // Mark that duplicates have been fixed
+        update_option('typeform_quiz_duplicates_fixed', true);
+    }
+    
+    /**
+     * Reset the duplicate fix flag (for debugging or manual re-fixing)
+     */
+    public static function reset_duplicate_fix_flag() {
+        delete_option('typeform_quiz_duplicates_fixed');
     }
     
     /**
@@ -1384,21 +1410,8 @@ final class Typeform_Quizzes {
      * @return string Sanitized dimension value
      */
     private static function sanitize_css_dimension($value, $default = '100%') {
-        if (empty($value)) {
-            return $default;
-        }
-        
-        // Allow common CSS units and percentages
-        if (preg_match('/^(\d+(?:\.\d+)?)(px|%|em|rem|vh|vw)$/', $value, $matches)) {
-            return $value;
-        }
-        
-        // If it's just a number, assume pixels
-        if (is_numeric($value)) {
-            return $value . 'px';
-        }
-        
-        return $default;
+        if (function_exists('_deprecated_function')) _deprecated_function(__FUNCTION__, TFQ_VERSION);
+        return \MTI\TypeformQuizzes\Support\Sanitize::css_dimension($value, $default);
     }
     
     /**
@@ -1449,21 +1462,8 @@ final class Typeform_Quizzes {
      * Sanitize hex color value
      */
     private static function sanitize_hex_color($color) {
-        if (empty($color)) {
-            return '#111111';
-        }
-        
-        // Remove any non-hex characters
-        $color = preg_replace('/[^0-9a-fA-F]/', '', $color);
-        
-        // Ensure it's a valid hex color
-        if (strlen($color) === 6) {
-            return '#' . $color;
-        } elseif (strlen($color) === 3) {
-            return '#' . $color[0] . $color[0] . $color[1] . $color[1] . $color[2] . $color[2];
-        }
-        
-        return '#111111';
+        if (function_exists('_deprecated_function')) _deprecated_function(__FUNCTION__, TFQ_VERSION);
+        return \MTI\TypeformQuizzes\Support\Sanitize::hex_color($color);
     }
 
     /**
@@ -1481,127 +1481,194 @@ final class Typeform_Quizzes {
         $sanitized = [];
         
         // Maximum quizzes - stricter validation
-        $max_value = isset($input['max']) ? intval($input['max']) : 20;
-        if ($max_value < 1 || $max_value > self::MAX_QUIZZES_LIMIT) {
-            $max_value = 20; // Reset to default if invalid
-        }
-        $sanitized['max'] = $max_value;
+        $sanitized['max'] = \MTI\TypeformQuizzes\Support\Sanitize::integer_bounds(
+            $input['max'] ?? 20, 
+            1, 
+            self::MAX_QUIZZES_LIMIT, 
+            20
+        );
         
         // Max width - stricter validation
-        $max_width_value = isset($input['max_width']) ? intval($input['max_width']) : 1450;
-        if ($max_width_value < 200 || $max_width_value > 2000) {
-            $max_width_value = 1450; // Reset to default if invalid
-        }
-        $sanitized['max_width'] = $max_width_value;
+        $sanitized['max_width'] = \MTI\TypeformQuizzes\Support\Sanitize::integer_bounds(
+            $input['max_width'] ?? 1450, 
+            200, 
+            2000, 
+            1450
+        );
         
         // Thumbnail height - stricter validation
-        $thumb_height_value = isset($input['thumb_height']) ? intval($input['thumb_height']) : 200;
-        if ($thumb_height_value < 50 || $thumb_height_value > 1000) {
-            $thumb_height_value = 200; // Reset to default if invalid
-        }
-        $sanitized['thumb_height'] = $thumb_height_value;
+        $sanitized['thumb_height'] = \MTI\TypeformQuizzes\Support\Sanitize::integer_bounds(
+            $input['thumb_height'] ?? 200, 
+            50, 
+            1000, 
+            200
+        );
         
         // Columns - stricter validation
-        $cols_desktop_value = isset($input['cols_desktop']) ? intval($input['cols_desktop']) : 6;
-        if ($cols_desktop_value < 1 || $cols_desktop_value > 12) {
-            $cols_desktop_value = 6; // Reset to default if invalid
-        }
-        $sanitized['cols_desktop'] = $cols_desktop_value;
+        $sanitized['cols_desktop'] = \MTI\TypeformQuizzes\Support\Sanitize::integer_bounds(
+            $input['cols_desktop'] ?? 6, 
+            1, 
+            12, 
+            6
+        );
         
-        $cols_tablet_value = isset($input['cols_tablet']) ? intval($input['cols_tablet']) : 3;
-        if ($cols_tablet_value < 1 || $cols_tablet_value > 8) {
-            $cols_tablet_value = 3; // Reset to default if invalid
-        }
-        $sanitized['cols_tablet'] = $cols_tablet_value;
+        $sanitized['cols_tablet'] = \MTI\TypeformQuizzes\Support\Sanitize::integer_bounds(
+            $input['cols_tablet'] ?? 3, 
+            1, 
+            8, 
+            3
+        );
         
-        $cols_mobile_value = isset($input['cols_mobile']) ? intval($input['cols_mobile']) : 2;
-        if ($cols_mobile_value < 1 || $cols_mobile_value > 4) {
-            $cols_mobile_value = 2; // Reset to default if invalid
-        }
-        $sanitized['cols_mobile'] = $cols_mobile_value;
+        $sanitized['cols_mobile'] = \MTI\TypeformQuizzes\Support\Sanitize::integer_bounds(
+            $input['cols_mobile'] ?? 2, 
+            1, 
+            4, 
+            2
+        );
         
         // Gap - stricter validation
-        $gap_value = isset($input['gap']) ? intval($input['gap']) : 20;
-        if ($gap_value < 0 || $gap_value > 100) {
-            $gap_value = 20; // Reset to default if invalid
-        }
-        $sanitized['gap'] = $gap_value;
+        $sanitized['gap'] = \MTI\TypeformQuizzes\Support\Sanitize::integer_bounds(
+            $input['gap'] ?? 20, 
+            0, 
+            100, 
+            20
+        );
         
         // Center on click
-        $sanitized['center_on_click'] = isset($input['center_on_click']) ? 
-            (bool) $input['center_on_click'] : true;
+        $sanitized['center_on_click'] = \MTI\TypeformQuizzes\Support\Sanitize::boolean(
+            $input['center_on_click'] ?? true, 
+            true
+        );
         
         // Order
-        $sanitized['order'] = isset($input['order']) && in_array($input['order'], ['menu_order', 'date', 'title', 'rand']) ? 
-            $input['order'] : 'menu_order';
+        $sanitized['order'] = \MTI\TypeformQuizzes\Support\Sanitize::order(
+            $input['order'] ?? 'menu_order', 
+            ['menu_order', 'date', 'title', 'rand'], 
+            'menu_order'
+        );
         
         // Style controls
-        $sanitized['border_radius'] = isset($input['border_radius']) ? 
-            min(max(intval($input['border_radius']), 0), 50) : 16;
+        $sanitized['border_radius'] = \MTI\TypeformQuizzes\Support\Sanitize::integer_clamp(
+            $input['border_radius'] ?? 16, 
+            0, 
+            50, 
+            16
+        );
         
-        $sanitized['title_color'] = isset($input['title_color']) ? 
-            self::sanitize_hex_color($input['title_color']) : '#000000';
+        $sanitized['title_color'] = \MTI\TypeformQuizzes\Support\Sanitize::hex_color(
+            $input['title_color'] ?? '#000000'
+        );
         
-        $sanitized['title_hover_color'] = isset($input['title_hover_color']) ? 
-            self::sanitize_hex_color($input['title_hover_color']) : '#777777';
+        $sanitized['title_hover_color'] = \MTI\TypeformQuizzes\Support\Sanitize::hex_color(
+            $input['title_hover_color'] ?? '#777777'
+        );
         
-        $sanitized['controls_spacing'] = isset($input['controls_spacing']) ? 
-            min(max(intval($input['controls_spacing']), 20), 200) : 56;
+        $sanitized['controls_spacing'] = \MTI\TypeformQuizzes\Support\Sanitize::integer_clamp(
+            $input['controls_spacing'] ?? 56, 
+            20, 
+            200, 
+            56
+        );
         
-                $sanitized['controls_spacing_tablet'] = isset($input['controls_spacing_tablet']) ?
-            min(max(intval($input['controls_spacing_tablet']), 20), 200) : 56;
+        $sanitized['controls_spacing_tablet'] = \MTI\TypeformQuizzes\Support\Sanitize::integer_clamp(
+            $input['controls_spacing_tablet'] ?? 56, 
+            20, 
+            200, 
+            56
+        );
         
-        
-        $sanitized['controls_bottom_spacing'] = isset($input['controls_bottom_spacing']) ?
-            min(max(intval($input['controls_bottom_spacing']), 10), 100) : 20;
+        $sanitized['controls_bottom_spacing'] = \MTI\TypeformQuizzes\Support\Sanitize::integer_clamp(
+            $input['controls_bottom_spacing'] ?? 20, 
+            10, 
+            100, 
+            20
+        );
         
         // Arrow styling settings
-        $sanitized['arrow_border_radius'] = isset($input['arrow_border_radius']) ? 
-            min(max(intval($input['arrow_border_radius']), 0), 50) : 0;
+        $sanitized['arrow_border_radius'] = \MTI\TypeformQuizzes\Support\Sanitize::integer_clamp(
+            $input['arrow_border_radius'] ?? 0, 
+            0, 
+            50, 
+            0
+        );
         
-        $sanitized['arrow_padding'] = isset($input['arrow_padding']) ? 
-            min(max(intval($input['arrow_padding']), 0), 20) : 3;
+        $sanitized['arrow_padding'] = \MTI\TypeformQuizzes\Support\Sanitize::integer_clamp(
+            $input['arrow_padding'] ?? 3, 
+            0, 
+            20, 
+            3
+        );
         
-        $sanitized['arrow_width'] = isset($input['arrow_width']) ? 
-            min(max(intval($input['arrow_width']), 20), 100) : 35;
+        $sanitized['arrow_width'] = \MTI\TypeformQuizzes\Support\Sanitize::integer_clamp(
+            $input['arrow_width'] ?? 35, 
+            20, 
+            100, 
+            35
+        );
         
-        $sanitized['arrow_height'] = isset($input['arrow_height']) ? 
-            min(max(intval($input['arrow_height']), 20), 100) : 35;
+        $sanitized['arrow_height'] = \MTI\TypeformQuizzes\Support\Sanitize::integer_clamp(
+            $input['arrow_height'] ?? 35, 
+            20, 
+            100, 
+            35
+        );
         
-        $sanitized['arrow_bg_color'] = isset($input['arrow_bg_color']) ? 
-            self::sanitize_hex_color($input['arrow_bg_color']) : '#111111';
+        $sanitized['arrow_bg_color'] = \MTI\TypeformQuizzes\Support\Sanitize::hex_color(
+            $input['arrow_bg_color'] ?? '#111111'
+        );
         
-        $sanitized['arrow_hover_bg_color'] = isset($input['arrow_hover_bg_color']) ? 
-            self::sanitize_hex_color($input['arrow_hover_bg_color']) : '#000000';
+        $sanitized['arrow_hover_bg_color'] = \MTI\TypeformQuizzes\Support\Sanitize::hex_color(
+            $input['arrow_hover_bg_color'] ?? '#000000'
+        );
         
-        $sanitized['arrow_icon_color'] = isset($input['arrow_icon_color']) ? 
-            self::sanitize_hex_color($input['arrow_icon_color']) : '#ffffff';
+        $sanitized['arrow_icon_color'] = \MTI\TypeformQuizzes\Support\Sanitize::hex_color(
+            $input['arrow_icon_color'] ?? '#ffffff'
+        );
         
-        $sanitized['arrow_icon_hover_color'] = isset($input['arrow_icon_hover_color']) ? 
-            self::sanitize_hex_color($input['arrow_icon_hover_color']) : '#ffffff';
+        $sanitized['arrow_icon_hover_color'] = \MTI\TypeformQuizzes\Support\Sanitize::hex_color(
+            $input['arrow_icon_hover_color'] ?? '#ffffff'
+        );
         
-        $sanitized['arrow_icon_size'] = isset($input['arrow_icon_size']) ? 
-            min(max(intval($input['arrow_icon_size']), 12), 48) : 28;
+        $sanitized['arrow_icon_size'] = \MTI\TypeformQuizzes\Support\Sanitize::integer_clamp(
+            $input['arrow_icon_size'] ?? 28, 
+            12, 
+            48, 
+            28
+        );
         
         // Pagination dot settings
-        $sanitized['pagination_dot_color'] = isset($input['pagination_dot_color']) ? 
-            self::sanitize_hex_color($input['pagination_dot_color']) : '#cfcfcf';
+        $sanitized['pagination_dot_color'] = \MTI\TypeformQuizzes\Support\Sanitize::hex_color(
+            $input['pagination_dot_color'] ?? '#cfcfcf'
+        );
         
-        $sanitized['pagination_active_dot_color'] = isset($input['pagination_active_dot_color']) ? 
-            self::sanitize_hex_color($input['pagination_active_dot_color']) : '#111111';
+        $sanitized['pagination_active_dot_color'] = \MTI\TypeformQuizzes\Support\Sanitize::hex_color(
+            $input['pagination_active_dot_color'] ?? '#111111'
+        );
         
-        $sanitized['pagination_dot_gap'] = isset($input['pagination_dot_gap']) ? 
-            min(max(intval($input['pagination_dot_gap']), 0), 50) : 10;
+        $sanitized['pagination_dot_gap'] = \MTI\TypeformQuizzes\Support\Sanitize::integer_clamp(
+            $input['pagination_dot_gap'] ?? 10, 
+            0, 
+            50, 
+            10
+        );
         
-        $sanitized['pagination_dot_size'] = isset($input['pagination_dot_size']) ? 
-            min(max(intval($input['pagination_dot_size']), 4), 20) : 8;
+        $sanitized['pagination_dot_size'] = \MTI\TypeformQuizzes\Support\Sanitize::integer_clamp(
+            $input['pagination_dot_size'] ?? 8, 
+            4, 
+            20, 
+            8
+        );
         
         // Active slide border color
-        $sanitized['active_slide_border_color'] = isset($input['active_slide_border_color']) ? 
-            self::sanitize_hex_color($input['active_slide_border_color']) : '#0073aa';
+        $sanitized['active_slide_border_color'] = \MTI\TypeformQuizzes\Support\Sanitize::hex_color(
+            $input['active_slide_border_color'] ?? '#0073aa'
+        );
         
         // Darken inactive slides
-        $sanitized['darken_inactive_slides'] = isset($input['darken_inactive_slides']) ? 1 : 0;
+        $sanitized['darken_inactive_slides'] = \MTI\TypeformQuizzes\Support\Sanitize::boolean(
+            $input['darken_inactive_slides'] ?? 0, 
+            0
+        ) ? 1 : 0;
         
         return $sanitized;
     }
@@ -2037,13 +2104,28 @@ final class Typeform_Quizzes {
                 }
 
                 // Prepare quiz data
+                $menu_order = intval($quiz_data['menu_order'] ?? 0);
+                
+                // If no order is specified, assign the next available order
+                if ($menu_order === 0) {
+                    $existing_quizzes = get_posts([
+                        'post_type' => 'typeform_quiz',
+                        'post_status' => 'publish',
+                        'numberposts' => 1,
+                        'orderby' => 'menu_order',
+                        'order' => 'DESC'
+                    ]);
+                    
+                    $menu_order = $existing_quizzes ? ($existing_quizzes[0]->menu_order + 1) : 1;
+                }
+                
                 $post_data = [
                     'post_title' => sanitize_text_field($quiz_data['title']),
                     'post_content' => wp_kses_post($quiz_data['content']),
                     'post_excerpt' => sanitize_text_field($quiz_data['excerpt']),
                     'post_type' => 'typeform_quiz',
                     'post_status' => 'publish',
-                    'menu_order' => intval($quiz_data['menu_order'] ?? 0)
+                    'menu_order' => $menu_order
                 ];
 
                 // Update existing quiz or create new one
@@ -2058,6 +2140,9 @@ final class Typeform_Quizzes {
                     $errors[] = 'Failed to create/update quiz: ' . $quiz_data['title'];
                     continue;
                 }
+
+                // Set the _quiz_order meta to match menu_order
+                update_post_meta($quiz_id, '_quiz_order', $menu_order);
 
                 // Save meta data
                 if (!empty($quiz_data['typeform_url'])) {
@@ -2362,7 +2447,7 @@ final class Typeform_Quizzes {
      */
     public static function get_reorder_script() {
         $ajax_url = admin_url('admin-ajax.php');
-        $nonce = wp_create_nonce('typeform_quiz_reorder');
+        $nonce = wp_create_nonce('tfq_reorder');
         
         return "
         jQuery(document).ready(function($) {
@@ -2407,7 +2492,7 @@ final class Typeform_Quizzes {
                 reorderList.html('<div style=\"text-align: center; padding: 50px; color: #999;\"><span class=\"dashicons dashicons-update\" style=\"font-size: 24px; margin-right: 10px;\"></span>Loading quizzes...</div>');
                 
                 $.post('$ajax_url', {
-                    action: 'typeform_quiz_reorder',
+                    action: 'tfq_reorder',
                     action_type: 'get_quizzes',
                     nonce: '$nonce'
                 }, function(response) {
@@ -2507,7 +2592,7 @@ final class Typeform_Quizzes {
                 $(this).prop('disabled', true).text('Saving...');
                 
                 $.post('$ajax_url', {
-                    action: 'typeform_quiz_reorder',
+                    action: 'tfq_reorder',
                     action_type: 'save_order',
                     order_data: JSON.stringify(orderData),
                     nonce: '$nonce'

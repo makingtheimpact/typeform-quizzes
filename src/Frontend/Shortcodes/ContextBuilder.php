@@ -19,7 +19,7 @@ if (!defined('ABSPATH')) {
  * 
  * Handles building the context array for the shortcode template.
  */
-class ContextBuilder
+final class ContextBuilder
 {
     /**
      * Build shortcode context
@@ -28,7 +28,7 @@ class ContextBuilder
      * @param string $content Shortcode content
      * @return array Context array
      */
-    public static function build_shortcode_context($atts, $content = ''): array {
+    public static function build(array $atts, string $content = ''): array {
         // Validate and sanitize input
         if (!is_array($atts)) {
             $atts = [];
@@ -117,12 +117,93 @@ class ContextBuilder
         // Generate unique ID for this slider instance
         $slider_id = 'tfq-slider-' . uniqid();
         
+        // Pre-compute all styling attributes that the template needs
+        $border_radius = intval($atts['border_radius']);
+        $title_color = \MTI\TypeformQuizzes\Support\Sanitize::hex_color($atts['title_color']);
+        $title_hover_color = \MTI\TypeformQuizzes\Support\Sanitize::hex_color($atts['title_hover_color']);
+        $controls_spacing = intval($atts['controls_spacing']);
+        $controls_spacing_tablet = intval($atts['controls_spacing_tablet']);
+        $controls_bottom_spacing = intval($atts['controls_bottom_spacing']);
+        $arrow_border_radius = intval($atts['arrow_border_radius']);
+        $arrow_padding = intval($atts['arrow_padding']);
+        $arrow_width = intval($atts['arrow_width']);
+        $arrow_height = intval($atts['arrow_height']);
+        $arrow_bg_color = \MTI\TypeformQuizzes\Support\Sanitize::hex_color($atts['arrow_bg_color']);
+        $arrow_hover_bg_color = \MTI\TypeformQuizzes\Support\Sanitize::hex_color($atts['arrow_hover_bg_color']);
+        $arrow_icon_color = \MTI\TypeformQuizzes\Support\Sanitize::hex_color($atts['arrow_icon_color']);
+        $arrow_icon_hover_color = \MTI\TypeformQuizzes\Support\Sanitize::hex_color($atts['arrow_icon_hover_color']);
+        $arrow_icon_size = intval($atts['arrow_icon_size']);
+        $pagination_dot_color = \MTI\TypeformQuizzes\Support\Sanitize::hex_color($atts['pagination_dot_color']);
+        $pagination_active_dot_color = \MTI\TypeformQuizzes\Support\Sanitize::hex_color($atts['pagination_active_dot_color']);
+        $pagination_dot_gap = \MTI\TypeformQuizzes\Support\Sanitize::integer_clamp($atts['pagination_dot_gap'], 0, 50, 10);
+        $pagination_dot_size = \MTI\TypeformQuizzes\Support\Sanitize::integer_clamp($atts['pagination_dot_size'], 4, 20, 8);
+        $active_slide_border_color = \MTI\TypeformQuizzes\Support\Sanitize::hex_color($atts['active_slide_border_color']);
+        $darken_inactive_slides = intval($atts['darken_inactive_slides']);
+        
+        // Set thumbnail height CSS
+        $thumb_height_css = $thumb_height . 'px';
+        
+        // Swiper parameters for JavaScript
+        $swiper_params = [
+            'paginationDotColor' => $pagination_dot_color,
+            'paginationActiveDotColor' => $pagination_active_dot_color,
+            'paginationDotSize' => $pagination_dot_size,
+            'paginationDotGap' => $pagination_dot_gap,
+            'colsDesktop' => $cols_desktop,
+            'colsTablet' => $cols_tablet,
+            'colsMobile' => $cols_mobile,
+            'gap' => $gap
+        ];
+        
         // Enqueue scripts and styles using AssetManager
         AssetManager::enqueue_slider_assets($atts);
 
-        return compact(
-            'atts', 'slider_id', 'quizzes', 'max_width', 'thumb_height', 
-            'cols_desktop', 'cols_tablet', 'cols_mobile', 'gap', 'center_on_click'
-        );
+        return [
+            'atts' => $atts,
+            'slider_id' => $slider_id,
+            'quizzes' => $quizzes,
+            'max_width' => $max_width,
+            'thumb_height' => $thumb_height,
+            'thumb_height_css' => $thumb_height_css,
+            'cols_desktop' => $cols_desktop,
+            'cols_tablet' => $cols_tablet,
+            'cols_mobile' => $cols_mobile,
+            'gap' => $gap,
+            'center_on_click' => $center_on_click,
+            'border_radius' => $border_radius,
+            'title_color' => $title_color,
+            'title_hover_color' => $title_hover_color,
+            'controls_spacing' => $controls_spacing,
+            'controls_spacing_tablet' => $controls_spacing_tablet,
+            'controls_bottom_spacing' => $controls_bottom_spacing,
+            'arrow_border_radius' => $arrow_border_radius,
+            'arrow_padding' => $arrow_padding,
+            'arrow_width' => $arrow_width,
+            'arrow_height' => $arrow_height,
+            'arrow_bg_color' => $arrow_bg_color,
+            'arrow_hover_bg_color' => $arrow_hover_bg_color,
+            'arrow_icon_color' => $arrow_icon_color,
+            'arrow_icon_hover_color' => $arrow_icon_hover_color,
+            'arrow_icon_size' => $arrow_icon_size,
+            'pagination_dot_color' => $pagination_dot_color,
+            'pagination_active_dot_color' => $pagination_active_dot_color,
+            'pagination_dot_gap' => $pagination_dot_gap,
+            'pagination_dot_size' => $pagination_dot_size,
+            'active_slide_border_color' => $active_slide_border_color,
+            'darken_inactive_slides' => $darken_inactive_slides,
+            'swiper_params' => $swiper_params
+        ];
+    }
+
+    /**
+     * Build shortcode context (backward compatibility)
+     * 
+     * @param array $atts Shortcode attributes
+     * @param string $content Shortcode content
+     * @return array Context array
+     */
+    public static function build_shortcode_context($atts, $content = ''): array {
+        if (function_exists('_deprecated_function')) _deprecated_function(__FUNCTION__, TFQ_VERSION);
+        return self::build($atts, $content);
     }
 }

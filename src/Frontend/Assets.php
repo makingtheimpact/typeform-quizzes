@@ -44,6 +44,20 @@ class Assets
             return;
         }
 
+        // Enqueue slider assets (includes FontAwesome check)
+        self::enqueue_slider_assets();
+    }
+
+    /**
+     * Enqueue slider assets with fallback handling
+     * 
+     * @param array $atts Shortcode attributes (optional)
+     * @return void
+     */
+    public static function enqueue_slider_assets($atts = [])
+    {
+        wp_enqueue_script('jquery');
+
         // Check if any FontAwesome version is already loaded
         $fa_loaded = wp_style_is('font-awesome', 'enqueued') || 
                      wp_style_is('fontawesome', 'enqueued') || 
@@ -58,20 +72,6 @@ class Assets
             wp_enqueue_style('typeform-quizzes-fontawesome', $fontawesome_url, [], '6.4.0');
             wp_style_add_data('typeform-quizzes-fontawesome', 'defer', true);
         }
-
-        // Enqueue slider assets
-        self::enqueue_slider_assets();
-    }
-
-    /**
-     * Enqueue slider assets with fallback handling
-     * 
-     * @param array $atts Shortcode attributes (optional)
-     * @return void
-     */
-    private static function enqueue_slider_assets($atts = [])
-    {
-        wp_enqueue_script('jquery');
 
         // Check for page builder and hosting compatibility
         $compatibility = self::check_page_builder_compatibility();
@@ -331,5 +331,62 @@ class Assets
         }
 
         return $optimizations;
+    }
+
+    /**
+     * Localize frontend data for JavaScript
+     * 
+     * @param array $atts Shortcode attributes
+     * @return void
+     */
+    public static function localize_frontend_data($atts = [])
+    {
+        // Get defaults from admin settings
+        $defaults = get_option('typeform_quizzes_defaults', []);
+
+        // Merge shortcode attributes with defaults
+        $atts = shortcode_atts([
+            'thumb_height' => $defaults['thumb_height'] ?? 200,
+            'arrow_icon_size' => $defaults['arrow_icon_size'] ?? 16,
+            'arrow_icon_color' => $defaults['arrow_icon_color'] ?? '#333333',
+            'arrow_icon_hover_color' => $defaults['arrow_icon_hover_color'] ?? '#666666',
+            'arrow_bg_color' => $defaults['arrow_bg_color'] ?? '#ffffff',
+            'arrow_hover_bg_color' => $defaults['arrow_hover_bg_color'] ?? '#f0f0f0',
+            'arrow_width' => $defaults['arrow_width'] ?? 40,
+            'arrow_height' => $defaults['arrow_height'] ?? 40,
+            'arrow_border_radius' => $defaults['arrow_border_radius'] ?? 4,
+            'title_color' => $defaults['title_color'] ?? '#333333',
+            'title_hover_color' => $defaults['title_hover_color'] ?? '#666666',
+            'active_slide_border_color' => $defaults['active_slide_border_color'] ?? '#007cba',
+            'border_radius' => $defaults['border_radius'] ?? 8,
+            'controls_spacing' => $defaults['controls_spacing'] ?? 20,
+            'controls_spacing_tablet' => $defaults['controls_spacing_tablet'] ?? 15,
+            'controls_bottom_spacing' => $defaults['controls_bottom_spacing'] ?? 20,
+            'pagination_dot_color' => $defaults['pagination_dot_color'] ?? '#cccccc',
+            'pagination_active_dot_color' => $defaults['pagination_active_dot_color'] ?? '#007cba',
+            'pagination_dot_size' => $defaults['pagination_dot_size'] ?? 8,
+            'pagination_dot_gap' => $defaults['pagination_dot_gap'] ?? 8,
+        ], $atts);
+
+        // Prepare localization data
+        $localize_data = [
+            'ajax_url' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('typeform_quizzes_nonce'),
+            'plugin_url' => TFQ_PLUGIN_URL,
+            'version' => TFQ_VERSION,
+            'atts' => $atts,
+            'is_local_dev' => defined('WP_DEBUG') && WP_DEBUG,
+        ];
+
+        // Localize the main custom script
+        wp_localize_script('typeform-quizzes-custom', 'typeformQuizzesData', $localize_data);
+
+        // Add any additional inline scripts if needed
+        wp_add_inline_script('typeform-quizzes-custom', '
+            // Typeform Quizzes Plugin Configuration
+            if (typeof window.TypeformQuizzesConfig === "undefined") {
+                window.TypeformQuizzesConfig = typeformQuizzesData;
+            }
+        ', 'before');
     }
 }

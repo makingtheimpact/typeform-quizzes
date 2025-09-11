@@ -70,6 +70,108 @@ if (!function_exists('tfq_get_quizzes')) {
     }
 }
 
+// Sanitization compatibility functions
+if (!function_exists('tfq_sanitize_hex_color')) {
+    /**
+     * Sanitize hex color value
+     * 
+     * @param string $color Color value to sanitize
+     * @return string Sanitized hex color
+     */
+    function tfq_sanitize_hex_color($color) {
+        if (function_exists('_deprecated_function')) _deprecated_function(__FUNCTION__, TFQ_VERSION);
+        return \MTI\TypeformQuizzes\Support\Sanitize::hex_color($color);
+    }
+}
+
+if (!function_exists('tfq_sanitize_css_dimension')) {
+    /**
+     * Sanitize CSS dimension value
+     * 
+     * @param string $value The dimension value to sanitize
+     * @param string $default Default value if sanitization fails
+     * @return string Sanitized dimension value
+     */
+    function tfq_sanitize_css_dimension($value, $default = '100%') {
+        if (function_exists('_deprecated_function')) _deprecated_function(__FUNCTION__, TFQ_VERSION);
+        return \MTI\TypeformQuizzes\Support\Sanitize::css_dimension($value, $default);
+    }
+}
+
+if (!function_exists('tfq_sanitize_integer_bounds')) {
+    /**
+     * Sanitize integer with bounds checking
+     * 
+     * @param mixed $value Value to sanitize
+     * @param int $min Minimum allowed value
+     * @param int $max Maximum allowed value
+     * @param int $default Default value if invalid
+     * @return int Sanitized integer
+     */
+    function tfq_sanitize_integer_bounds($value, $min, $max, $default) {
+        if (function_exists('_deprecated_function')) _deprecated_function(__FUNCTION__, TFQ_VERSION);
+        return \MTI\TypeformQuizzes\Support\Sanitize::integer_bounds($value, $min, $max, $default);
+    }
+}
+
+if (!function_exists('tfq_sanitize_integer_clamp')) {
+    /**
+     * Sanitize integer with min/max clamping
+     * 
+     * @param mixed $value Value to sanitize
+     * @param int $min Minimum allowed value
+     * @param int $max Maximum allowed value
+     * @param int $default Default value if invalid
+     * @return int Sanitized integer clamped to bounds
+     */
+    function tfq_sanitize_integer_clamp($value, $min, $max, $default) {
+        if (function_exists('_deprecated_function')) _deprecated_function(__FUNCTION__, TFQ_VERSION);
+        return \MTI\TypeformQuizzes\Support\Sanitize::integer_clamp($value, $min, $max, $default);
+    }
+}
+
+if (!function_exists('tfq_sanitize_boolean')) {
+    /**
+     * Sanitize boolean value
+     * 
+     * @param mixed $value Value to sanitize
+     * @param bool $default Default value if invalid
+     * @return bool Sanitized boolean
+     */
+    function tfq_sanitize_boolean($value, $default = false) {
+        if (function_exists('_deprecated_function')) _deprecated_function(__FUNCTION__, TFQ_VERSION);
+        return \MTI\TypeformQuizzes\Support\Sanitize::boolean($value, $default);
+    }
+}
+
+if (!function_exists('tfq_sanitize_order')) {
+    /**
+     * Sanitize order value
+     * 
+     * @param mixed $value Value to sanitize
+     * @param array $allowed Allowed values
+     * @param string $default Default value if invalid
+     * @return string Sanitized order value
+     */
+    function tfq_sanitize_order($value, $allowed = ['menu_order', 'date', 'title', 'rand'], $default = 'menu_order') {
+        if (function_exists('_deprecated_function')) _deprecated_function(__FUNCTION__, TFQ_VERSION);
+        return \MTI\TypeformQuizzes\Support\Sanitize::order($value, $allowed, $default);
+    }
+}
+
+// AJAX compatibility functions
+if (!function_exists('tfq_ajax_reorder')) {
+    /**
+     * Handle AJAX reorder request (backward compatibility)
+     * 
+     * @return void
+     */
+    function tfq_ajax_reorder() {
+        if (function_exists('_deprecated_function')) _deprecated_function(__FUNCTION__, TFQ_VERSION);
+        \MTI\TypeformQuizzes\Api\Ajax\Reorder::handle();
+    }
+}
+
 if (!function_exists('tfq_render_error')) {
     /**
      * Render an error message

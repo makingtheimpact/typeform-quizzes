@@ -10,6 +10,7 @@
 namespace MTI\TypeformQuizzes\Frontend\Shortcodes;
 
 use MTI\TypeformQuizzes\Support\Template;
+use MTI\TypeformQuizzes\Frontend\Assets;
 
 // Prevent direct access
 if (!defined('ABSPATH')) {
@@ -73,12 +74,16 @@ class TypeformQuizzesShortcode
     {
         try {
             // Build context using ContextBuilder
-            $ctx = ContextBuilder::build_shortcode_context($atts, $content);
+            $ctx = ContextBuilder::build($atts, $content);
             
             // Check for error context
             if (isset($ctx['error'])) {
                 return ErrorHandler::render_error($ctx['error']);
             }
+
+            // Enqueue frontend assets and localize data
+            Assets::enqueue_slider_assets($atts);
+            Assets::localize_frontend_data($atts);
 
             // Render using template
             $html = Template::render('shortcode-typeform-quizzes.php', ['ctx' => $ctx]);
