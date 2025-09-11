@@ -119,11 +119,11 @@ final class Typeform_Quizzes {
         add_action('add_meta_boxes', [__CLASS__, 'add_meta_boxes']);
         add_action('save_post', [__CLASS__, 'save_meta_boxes'], 10, 1);
         add_action('admin_menu', [__CLASS__, 'add_tools_page']);
-        add_action('wp_enqueue_scripts', [__CLASS__, 'enqueue_scripts']);
+        // moved to Frontend/Admin Assets
         
-        add_action('admin_enqueue_scripts', [__CLASS__, 'enqueue_admin_scripts']);
+        // moved to Frontend/Admin Assets
         add_shortcode('typeform_quiz', [__CLASS__, 'render_typeform_quiz']);
-        add_shortcode('typeform_quizzes_slider', [__CLASS__, 'render_quizzes_slider']);
+        // moved to Shortcodes\TypeformQuizzesShortcode
         add_action('admin_init', [__CLASS__, 'register_settings']);
         add_action('admin_init', [__CLASS__, 'handle_settings_save']);
         
@@ -2357,11 +2357,8 @@ final class Typeform_Quizzes {
      * Enqueue necessary scripts and styles for the slider
      */
     public static function enqueue_scripts() {
-        // Only load assets if shortcodes are present on the page
-        global $post;
-        if (!$post || !has_shortcode($post->post_content, 'typeform_quiz') && !has_shortcode($post->post_content, 'typeform_quizzes_slider')) {
-            return;
-        }
+        // moved to Frontend/Admin Assets
+        return;
         
         // Check if any FontAwesome version is already loaded
         $fa_loaded = wp_style_is('font-awesome', 'enqueued') || 
@@ -2524,9 +2521,8 @@ final class Typeform_Quizzes {
      * Enqueue admin scripts and styles
      */
     public static function enqueue_admin_scripts($hook) {
-        if (!current_user_can('edit_posts')) {
-            return;
-        }
+        // moved to Frontend/Admin Assets
+        return;
         
         // Load on our plugin page and quiz edit pages
         if ($hook === 'typeform_quiz_page_typeform-quizzes-tools') {
@@ -2905,6 +2901,8 @@ final class Typeform_Quizzes {
      * [typeform_quizzes_slider title_color="#ff0000" arrow_bg_color="#000000"]
      */
     public static function render_quizzes_slider($atts) {
+        // moved to Shortcodes\TypeformQuizzesShortcode
+        // This method is kept for backward compatibility and delegation
         try {
             // Validate and sanitize input
             if (!is_array($atts)) {
@@ -3345,7 +3343,8 @@ final class Typeform_Quizzes {
      * Enqueue slider assets with fallback handling
      */
     private static function enqueue_slider_assets($atts = []) {
-        wp_enqueue_script('jquery');
+        // moved to Frontend/Admin Assets
+        return;
         
         // Check for page builder and hosting compatibility
         $compatibility = self::check_page_builder_compatibility();
@@ -3717,7 +3716,8 @@ final class Typeform_Quizzes {
      * @param array $atts Shortcode attributes (optional)
      */
     private static function add_custom_css_variables($atts = []) {
-        // Get defaults from admin settings
+        // moved to Frontend/Admin Assets
+        return;
         $defaults = get_option('typeform_quizzes_defaults', []);
         
         // Merge shortcode attributes with defaults

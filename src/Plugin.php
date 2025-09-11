@@ -49,7 +49,14 @@ class Plugin
      */
     public function boot()
     {
-        // Plugin boot logic will be implemented here
+        // Initialize frontend assets
+        \MTI\TypeformQuizzes\Frontend\Assets::init();
+        
+        // Initialize admin assets
+        \MTI\TypeformQuizzes\Admin\Assets::init();
+        
+        // Initialize shortcodes
+        \MTI\TypeformQuizzes\Frontend\Shortcodes\TypeformQuizzesShortcode::register();
     }
 
     /**
