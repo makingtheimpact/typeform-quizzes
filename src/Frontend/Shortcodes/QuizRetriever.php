@@ -53,11 +53,6 @@ class QuizRetriever
             unset($args['order']);
         }
 
-        // Debug logging
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('Typeform Quizzes: Query args for get_quizzes: ' . print_r($args, true));
-            error_log('Typeform Quizzes: Max quizzes requested: ' . $max_quizzes);
-        }
         
         $quizzes_query = new \WP_Query($args);
         $quizzes = [];
@@ -132,10 +127,6 @@ class QuizRetriever
             }
         }
 
-        // Debug logging
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('Typeform Quizzes: Returning ' . count($quizzes) . ' quizzes (max requested: ' . $max_quizzes . ')');
-        }
 
         return $quizzes;
     }

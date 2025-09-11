@@ -127,14 +127,14 @@ final class Typeform_Quizzes {
         // moved to Frontend/Admin Assets
         add_shortcode('typeform_quiz', [__CLASS__, 'render_typeform_quiz']);
         
-        // Keep the original shortcode registration in place
+        // Keep the original shortcode registration in place for backward compatibility
         if (!function_exists('typeform_quizzes_shortcode')) {
             function typeform_quizzes_shortcode($atts, $content = '') {
-                // NEW: delegate to the class, but pass control right back to legacy code as needed
-                return \MTI\TypeformQuizzes\Frontend\Shortcodes\TypeformQuizzesShortcode::render_via_legacy($atts, $content);
+                // Proxy to the new class method for backward compatibility
+                return \MTI\TypeformQuizzes\Frontend\Shortcodes\TypeformQuizzesShortcode::render($atts, $content);
             }
         }
-        add_shortcode('typeform_quizzes_slider', 'typeform_quizzes_shortcode');
+        add_shortcode('typeform_quizzes_slider', [\MTI\TypeformQuizzes\Frontend\Shortcodes\TypeformQuizzesShortcode::class, 'render']);
         
         // Legacy bridge function for progressive migration
         if (!function_exists('typeform_quizzes_shortcode_legacy_body')) {
@@ -153,11 +153,6 @@ final class Typeform_Quizzes {
                     // Get defaults from admin settings
                     $defaults = get_option('typeform_quizzes_defaults', []);
                     
-                    // Debug logging
-                    if (defined('WP_DEBUG') && WP_DEBUG) {
-                        error_log('Typeform Quizzes: Admin defaults: ' . print_r($defaults, true));
-                        error_log('Typeform Quizzes: Shortcode atts before processing: ' . print_r($atts, true));
-                    }
                     
                     $atts = shortcode_atts([
                         'max' => $defaults['max'] ?? 20,
@@ -195,10 +190,6 @@ final class Typeform_Quizzes {
                     // Validate and sanitize inputs with proper bounds checking
                     $max_quizzes = min(max(intval($atts['max']), 1), \Typeform_Quizzes::MAX_QUIZZES_LIMIT);
                     
-                    // Debug logging
-                    if (defined('WP_DEBUG') && WP_DEBUG) {
-                        error_log('Typeform Quizzes: Final max_quizzes value: ' . $max_quizzes);
-                    }
                     $max_width = min(max(intval($atts['max_width']), 200), 2000);
                     $thumb_height = min(max(intval($atts['thumb_height']), 50), 1000);
                     
@@ -2176,7 +2167,7 @@ final class Typeform_Quizzes {
         
         // Handle export/import actions
         // Verify nonce for security
-        if (isset($_POST['action']) && wp_verify_nonce($_POST['_wpnonce'], 'typeform_quizzes_settings')) {
+        if (isset($_POST['action']) && isset($_POST['_wpnonce']) && wp_verify_nonce($_POST['_wpnonce'], 'typeform_quizzes_settings')) {
             $action = sanitize_text_field($_POST['action']);
             
             if ($action === 'export_quizzes') {
