@@ -65,7 +65,8 @@ if (!function_exists('tfq_get_quizzes')) {
      * @return array Array of quiz data
      */
     function tfq_get_quizzes($max_quizzes = 20, $order = 'menu_order') {
-        return \MTI\TypeformQuizzes\Frontend\Shortcodes\QuizRetriever::get_quizzes($max_quizzes, $order);
+        if (function_exists('_deprecated_function')) _deprecated_function(__FUNCTION__, TFQ_VERSION);
+        return \MTI\TypeformQuizzes\Frontend\Repository\QuizRepository::get_quizzes((int)$max_quizzes, (string)$order);
     }
 }
 

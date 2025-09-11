@@ -1,13 +1,15 @@
 <?php
 /**
- * Quiz Retriever for Typeform Quizzes Shortcode
+ * Quiz Repository for Typeform Quizzes
  * 
  * @package Typeform_Quizzes
  * @version 1.1.0
  * @author Making The Impact LLC
  */
 
-namespace MTI\TypeformQuizzes\Frontend\Shortcodes;
+namespace MTI\TypeformQuizzes\Frontend\Repository;
+
+use WP_Query;
 
 // Prevent direct access
 if (!defined('ABSPATH')) {
@@ -15,20 +17,21 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * Quiz Retriever Class
+ * Quiz Repository Class
  * 
- * Handles retrieval of quizzes from the database.
+ * Handles read-only quiz data retrieval from the database.
  */
-class QuizRetriever
+final class QuizRepository
 {
     /**
      * Get quizzes from database
      * 
-     * @param int $max_quizzes Maximum number of quizzes to retrieve
+     * @param int $max Maximum number of quizzes to retrieve
      * @param string $order Order of quizzes
-     * @return array Array of quiz posts
+     * @return array Array of quiz data
      */
-    public static function get_quizzes($max_quizzes, $order) {
+    public static function get_quizzes(int $max, string $order): array
+    {
         // Check if post type exists
         if (!post_type_exists('typeform_quiz')) {
             return [];
@@ -40,14 +43,14 @@ class QuizRetriever
 
         // For custom order (menu_order), we need to handle both menu_order and _quiz_order meta
         if ($order === 'menu_order') {
-            return self::get_quizzes_custom_order($max_quizzes);
+            return self::get_quizzes_custom_order($max);
         }
 
         // Build query arguments for other order types
         $args = [
             'post_type' => 'typeform_quiz',
             'post_status' => 'publish',
-            'posts_per_page' => ($max_quizzes === -1 ? -1 : $max_quizzes),
+            'posts_per_page' => ($max === -1 ? -1 : $max),
             'no_found_rows' => true,
             'ignore_sticky_posts' => true,
             'orderby' => $order,
@@ -60,16 +63,16 @@ class QuizRetriever
             unset($args['order']);
         }
 
-        $quizzes_query = new \WP_Query($args);
+        $quizzes_query = new WP_Query($args);
 
         // Safety: if some theme/plugin capped posts_per_page to 10 via pre_get_posts,
         // re-run with -1 and slice locally so we still honor your desired max.
-        if ($max_quizzes !== -1 &&
-            $quizzes_query->post_count < $max_quizzes &&
+        if ($max !== -1 &&
+            $quizzes_query->post_count < $max &&
             $quizzes_query->found_posts > $quizzes_query->post_count) {
 
             $args['posts_per_page'] = -1;
-            $quizzes_query = new \WP_Query($args);
+            $quizzes_query = new WP_Query($args);
         }
 
         $quizzes = [];
@@ -104,8 +107,8 @@ class QuizRetriever
         }
 
         // Apply final limit if needed (for safety re-query case)
-        if ($max_quizzes !== -1 && count($quizzes) > $max_quizzes) {
-            $quizzes = array_slice($quizzes, 0, $max_quizzes);
+        if ($max !== -1 && count($quizzes) > $max) {
+            $quizzes = array_slice($quizzes, 0, $max);
         }
 
         return $quizzes;
@@ -117,7 +120,8 @@ class QuizRetriever
      * @param int $max_quizzes Maximum number of quizzes to retrieve
      * @return array Array of quiz posts
      */
-    private static function get_quizzes_custom_order($max_quizzes) {
+    private static function get_quizzes_custom_order(int $max_quizzes): array
+    {
         // Only sync if we haven't done it recently (avoid performance issues)
         $last_sync = get_transient('tfq_order_sync_complete');
         if (!$last_sync) {
@@ -136,7 +140,7 @@ class QuizRetriever
             'order' => 'ASC'
         ];
 
-        $quizzes_query = new \WP_Query($args);
+        $quizzes_query = new WP_Query($args);
 
         // Safety: if some theme/plugin capped posts_per_page to 10 via pre_get_posts,
         // re-run with -1 and slice locally so we still honor your desired max.
@@ -145,7 +149,7 @@ class QuizRetriever
             $quizzes_query->found_posts > $quizzes_query->post_count) {
 
             $args['posts_per_page'] = -1;
-            $quizzes_query = new \WP_Query($args);
+            $quizzes_query = new WP_Query($args);
         }
 
         $quizzes = [];
@@ -201,7 +205,8 @@ class QuizRetriever
     /**
      * Sync _quiz_order meta field values to menu_order for consistent ordering
      */
-    private static function sync_quiz_order_to_menu_order() {
+    private static function sync_quiz_order_to_menu_order(): void
+    {
         // Get ALL published quizzes, not just those with _quiz_order meta
         $quizzes = get_posts([
             'post_type' => 'typeform_quiz',
@@ -272,7 +277,8 @@ class QuizRetriever
     /**
      * Fix duplicate order values in menu_order to ensure consistent ordering
      */
-    private static function fix_duplicate_order_values() {
+    private static function fix_duplicate_order_values(): void
+    {
         global $wpdb;
         
         // Get all quizzes ordered by menu_order
@@ -327,7 +333,8 @@ class QuizRetriever
      * @param string $url URL to validate
      * @return bool True if valid, false otherwise
      */
-    public static function is_valid_typeform_url($url) {
+    private static function is_valid_typeform_url(string $url): bool
+    {
         if (empty($url)) {
             return false;
         }
