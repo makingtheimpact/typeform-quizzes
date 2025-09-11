@@ -190,8 +190,13 @@ final class Typeform_Quizzes {
                         'order' => $defaults['order'] ?? 'menu_order'
                     ], $atts, 'typeform_quizzes_slider');
 
-                    // Validate and sanitize inputs with proper bounds checking
-                    $max_quizzes = min(max(intval($atts['max']), 1), \Typeform_Quizzes::MAX_QUIZZES_LIMIT);
+                    // Allow unlimited with max="all", 0, or -1
+                    $raw_max = is_string($atts['max']) ? strtolower(trim($atts['max'])) : $atts['max'];
+                    if ($raw_max === 'all' || intval($raw_max) === 0 || intval($raw_max) === -1) {
+                        $max_quizzes = -1; // WordPress 'no limit'
+                    } else {
+                        $max_quizzes = min(max(intval($atts['max']), 1), \Typeform_Quizzes::MAX_QUIZZES_LIMIT);
+                    }
                     
                     $max_width = min(max(intval($atts['max_width']), 200), 2000);
                     $thumb_height = min(max(intval($atts['thumb_height']), 50), 1000);
@@ -2758,8 +2763,13 @@ final class Typeform_Quizzes {
                 'order' => $defaults['order'] ?? 'menu_order'
             ], $atts, 'typeform_quizzes_slider');
 
-            // Validate and sanitize inputs with proper bounds checking
-            $max_quizzes = min(max(intval($atts['max']), 1), self::MAX_QUIZZES_LIMIT);
+            // Allow unlimited with max="all", 0, or -1
+            $raw_max = is_string($atts['max']) ? strtolower(trim($atts['max'])) : $atts['max'];
+            if ($raw_max === 'all' || intval($raw_max) === 0 || intval($raw_max) === -1) {
+                $max_quizzes = -1; // WordPress 'no limit'
+            } else {
+                $max_quizzes = min(max(intval($atts['max']), 1), self::MAX_QUIZZES_LIMIT);
+            }
             $max_width = min(max(intval($atts['max_width']), 200), 2000);
             $thumb_height = min(max(intval($atts['thumb_height']), 50), 1000);
             
@@ -2808,11 +2818,12 @@ final class Typeform_Quizzes {
         }
         
         
-        // First, try to get all published quizzes
         $args = [
-            'post_type' => 'typeform_quiz',
-            'post_status' => 'publish',
-            'posts_per_page' => $max_quizzes,
+            'post_type'           => 'typeform_quiz',
+            'post_status'         => 'publish',
+            'posts_per_page'      => ($max_quizzes === -1 ? -1 : $max_quizzes),
+            'no_found_rows'       => true,
+            'ignore_sticky_posts' => true,
         ];
 
         switch ($order) {
@@ -2829,7 +2840,6 @@ final class Typeform_Quizzes {
                 break;
             case 'menu_order':
             default:
-                // For custom order, use menu_order field (WordPress standard)
                 $args['orderby'] = 'menu_order';
                 $args['order'] = 'ASC';
                 break;
@@ -2840,6 +2850,16 @@ final class Typeform_Quizzes {
         }
         
         $quizzes_query = new WP_Query($args);
+
+        // Safety: if some theme/plugin capped posts_per_page to 10 via pre_get_posts,
+        // re-run with -1 and slice locally so we still honor your desired max.
+        if ($max_quizzes !== -1 &&
+            $quizzes_query->post_count < $max_quizzes &&
+            $quizzes_query->found_posts > $quizzes_query->post_count) {
+
+            $args['posts_per_page'] = -1;
+            $quizzes_query = new WP_Query($args);
+        }
         $quizzes = [];
 
         if (defined('WP_DEBUG') && WP_DEBUG) {
@@ -2875,12 +2895,17 @@ final class Typeform_Quizzes {
             wp_reset_postdata();
         }
 
+        // Apply final limit if needed (for safety re-query case)
+        if ($max_quizzes !== -1 && count($quizzes) > $max_quizzes) {
+            $quizzes = array_slice($quizzes, 0, $max_quizzes);
+        }
+
         // If no quizzes found, try fallback query for backward compatibility
         if (empty($quizzes)) {
             $fallback_args = [
                 'post_type' => 'typeform_quiz',
                 'post_status' => 'publish',
-                'posts_per_page' => $max_quizzes,
+                'posts_per_page' => ($max_quizzes === -1 ? -1 : $max_quizzes),
             ];
             
             $fallback_query = new WP_Query($fallback_args);

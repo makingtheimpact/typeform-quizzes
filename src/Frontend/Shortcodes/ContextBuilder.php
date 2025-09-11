@@ -29,6 +29,19 @@ class ContextBuilder
      * @return array Context array
      */
     public static function build_shortcode_context($atts, $content = ''): array {
+        // Validate and sanitize input
+        if (!is_array($atts)) {
+            $atts = [];
+        }
+        
+        // Debug logging for raw attributes
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log("TFQ Debug - ContextBuilder: Raw shortcode atts: " . print_r($atts, true));
+        }
+        
+        // Sanitize all input attributes
+        $atts = \Typeform_Quizzes::sanitize_shortcode_attributes($atts);
+        
         // Get defaults from admin settings
         $defaults = get_option('typeform_quizzes_defaults', []);
         
@@ -66,13 +79,50 @@ class ContextBuilder
             'order' => $defaults['order'] ?? 'menu_order'
         ], $atts, 'typeform_quizzes_slider');
 
-        // Call the SAME legacy helpers / options you use today
-        $slider_id   = 'tfq-slider-' . uniqid();
-        $slides      = [];   // however you currently build slide data
-        $classes     = [];   // same classes you echo on the wrapper
-        $swiper_args = [];   // your current Swiper init args
-        $colors      = [];   // dot/arrow color settings you read from options
+        // Allow unlimited with max="all", 0, or -1
+        $raw_max = is_string($atts['max']) ? strtolower(trim($atts['max'])) : $atts['max'];
+        if ($raw_max === 'all' || intval($raw_max) === 0 || intval($raw_max) === -1) {
+            $max_quizzes = -1; // WordPress 'no limit'
+        } else {
+            $max_quizzes = min(max(intval($atts['max']), 1), \Typeform_Quizzes::MAX_QUIZZES_LIMIT);
+        }
+        $max_width = min(max(intval($atts['max_width']), 200), 2000);
+        $thumb_height = min(max(intval($atts['thumb_height']), 50), 1000);
+        
+        
+        // Validate column settings
+        $cols_desktop = min(max(intval($atts['cols_desktop']), 1), 12);
+        $cols_tablet = min(max(intval($atts['cols_tablet']), 1), 8);
+        $cols_mobile = min(max(intval($atts['cols_mobile']), 1), 4);
+        
+        $gap = min(max(intval($atts['gap']), 0), 100);
+        $center_on_click = (bool) $atts['center_on_click'];
+        
+        // Validate order parameter
+        $valid_orders = ['menu_order', 'date', 'title', 'rand'];
+        $order = in_array($atts['order'], $valid_orders) ? $atts['order'] : 'menu_order';
 
-        return compact('atts','slider_id','slides','classes','swiper_args','colors');
+        // Get quizzes using QuizRetriever
+        $quizzes = QuizRetriever::get_quizzes($max_quizzes, $order);
+        
+        if (empty($quizzes)) {
+            // Return error context instead of empty quizzes
+            return [
+                'error' => 'No quizzes found. Please add some Typeform Quizzes first.',
+                'atts' => $atts,
+                'slider_id' => 'tfq-slider-' . uniqid()
+            ];
+        }
+
+        // Generate unique ID for this slider instance
+        $slider_id = 'tfq-slider-' . uniqid();
+        
+        // Enqueue scripts and styles using AssetManager
+        AssetManager::enqueue_slider_assets($atts);
+
+        return compact(
+            'atts', 'slider_id', 'quizzes', 'max_width', 'thumb_height', 
+            'cols_desktop', 'cols_tablet', 'cols_mobile', 'gap', 'center_on_click'
+        );
     }
 }
