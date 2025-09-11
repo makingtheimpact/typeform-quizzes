@@ -54,6 +54,9 @@ class Plugin
         
         // Initialize admin assets
         \MTI\TypeformQuizzes\Admin\Assets::init();
+        
+        // Initialize settings page
+        \MTI\TypeformQuizzes\Admin\SettingsPage::init();
     }
 
     /**

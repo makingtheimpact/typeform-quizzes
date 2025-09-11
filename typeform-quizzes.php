@@ -42,8 +42,11 @@ define('TFQ_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('TFQ_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('TFQ_VERSION', filemtime(__FILE__) ?: '1.1.0');
 
-// Require autoloader
-require_once TFQ_PLUGIN_DIR . 'src/autoload.php';
+// ---- Phase 6 bootstrap (autoload + settings) ----
+if ( file_exists( __DIR__ . '/src/autoload.php' ) ) {
+    require __DIR__ . '/src/autoload.php';
+}
+
 
 // Load compatibility layer
 require_once TFQ_PLUGIN_DIR . 'src/Support/Compat.php';
@@ -235,7 +238,6 @@ final class Typeform_Quizzes {
             }
         }
         
-        add_action('admin_init', [__CLASS__, 'register_settings']);
         add_action('admin_init', [__CLASS__, 'handle_settings_save']);
         
         // Add activation/deactivation hooks
@@ -1282,15 +1284,20 @@ final class Typeform_Quizzes {
     }
 
     public static function register_settings() {
-        if (!current_user_can('manage_options')) {
+        if ( ! current_user_can('manage_options') ) {
             return;
         }
-        
-        register_setting('typeform_quizzes_defaults_options', 'typeform_quizzes_defaults', [
-            'type' => 'array',
-            'sanitize_callback' => [__CLASS__, 'sanitize_defaults'],
-            'default' => []
-        ]);
+        // Delegate to class while keeping behavior unchanged
+        if ( class_exists('\MTI\TypeformQuizzes\Admin\SettingsPage') ) {
+            \MTI\TypeformQuizzes\Admin\SettingsPage::register_settings();
+        } else {
+            // Fallback (original code) to stay safe if src/ is missing
+            register_setting('typeform_quizzes_defaults_options', 'typeform_quizzes_defaults', [
+                'type'              => 'array',
+                'sanitize_callback' => [__CLASS__, 'sanitize_defaults'],
+                'default'           => []
+            ]);
+        }
     }
     
     

@@ -1,69 +1,61 @@
 <?php
-/**
- * Options Service
- * 
- * @package Typeform_Quizzes
- * @version 1.1.0
- * @author Making The Impact LLC
- */
-
 namespace MTI\TypeformQuizzes\Services;
 
-// Prevent direct access
-if (!defined('ABSPATH')) {
-    exit('Direct access forbidden.');
-}
-
 /**
- * Options Service Class
- * 
- * Handles plugin options management with a clean interface.
+ * Thin wrapper around the single array option used by the plugin.
+ * Keeps the existing option name so no settings are lost.
  */
 final class Options
 {
+    /** @var string */
+    const OPTION_NAME = 'typeform_quizzes_defaults';
+
     /**
-     * Get an option value
-     * 
-     * @param string $key Option key
-     * @param mixed $default Default value if option doesn't exist
-     * @return mixed Option value or default
+     * Get the entire settings array.
+     *
+     * @return array
+     */
+    public static function all(): array
+    {
+        $opts = get_option(self::OPTION_NAME, []);
+        return is_array($opts) ? $opts : [];
+    }
+
+    /**
+     * Persist the entire settings array.
+     *
+     * @param array $values
+     * @return bool
+     */
+    public static function replace(array $values): bool
+    {
+        return update_option(self::OPTION_NAME, $values);
+    }
+
+    /**
+     * Get a single key from the settings array.
+     *
+     * @param string $key
+     * @param mixed $default
+     * @return mixed
      */
     public static function get(string $key, $default = null)
     {
-        return get_option($key, $default);
+        $opts = self::all();
+        return array_key_exists($key, $opts) ? $opts[$key] : $default;
     }
 
     /**
-     * Update an option value
-     * 
-     * @param string $key Option key
-     * @param mixed $value Option value
-     * @return bool True on success, false on failure
+     * Update a single key in the settings array.
+     *
+     * @param string $key
+     * @param mixed $value
+     * @return bool
      */
-    public static function update(string $key, $value)
+    public static function set(string $key, $value): bool
     {
-        return update_option($key, $value);
-    }
-
-    /**
-     * Delete an option
-     * 
-     * @param string $key Option key
-     * @return bool True on success, false on failure
-     */
-    public static function delete(string $key)
-    {
-        return delete_option($key);
-    }
-
-    /**
-     * Check if an option exists
-     * 
-     * @param string $key Option key
-     * @return bool True if option exists, false otherwise
-     */
-    public static function exists(string $key)
-    {
-        return get_option($key) !== false;
+        $opts = self::all();
+        $opts[$key] = $value;
+        return self::replace($opts);
     }
 }
