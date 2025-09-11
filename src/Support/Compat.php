@@ -142,3 +142,341 @@ if (!function_exists('tfq_is_local_development')) {
         return \MTI\TypeformQuizzes\Frontend\Shortcodes\SliderRenderer::is_local_development();
     }
 }
+
+// Field callback compatibility functions
+// These wrappers prevent fatal errors if themes/other code call old global field callback functions
+
+// Basic Configuration Fields
+if (!function_exists('tfq_render_field_max')) {
+    /**
+     * Render max field
+     * 
+     * @return void
+     */
+    function tfq_render_field_max() {
+        \MTI\TypeformQuizzes\Admin\SettingsPage::field_max();
+    }
+}
+
+if (!function_exists('tfq_render_field_order')) {
+    /**
+     * Render order field
+     * 
+     * @return void
+     */
+    function tfq_render_field_order() {
+        \MTI\TypeformQuizzes\Admin\SettingsPage::field_order();
+    }
+}
+
+if (!function_exists('tfq_render_field_center_on_click')) {
+    /**
+     * Render center_on_click field
+     * 
+     * @return void
+     */
+    function tfq_render_field_center_on_click() {
+        \MTI\TypeformQuizzes\Admin\SettingsPage::field_center_on_click();
+    }
+}
+
+// Layout & Grid Settings Fields
+if (!function_exists('tfq_render_field_max_width')) {
+    /**
+     * Render max_width field
+     * 
+     * @return void
+     */
+    function tfq_render_field_max_width() {
+        \MTI\TypeformQuizzes\Admin\SettingsPage::field_max_width();
+    }
+}
+
+if (!function_exists('tfq_render_field_cols_desktop')) {
+    /**
+     * Render cols_desktop field
+     * 
+     * @return void
+     */
+    function tfq_render_field_cols_desktop() {
+        \MTI\TypeformQuizzes\Admin\SettingsPage::field_cols_desktop();
+    }
+}
+
+if (!function_exists('tfq_render_field_cols_tablet')) {
+    /**
+     * Render cols_tablet field
+     * 
+     * @return void
+     */
+    function tfq_render_field_cols_tablet() {
+        \MTI\TypeformQuizzes\Admin\SettingsPage::field_cols_tablet();
+    }
+}
+
+if (!function_exists('tfq_render_field_cols_mobile')) {
+    /**
+     * Render cols_mobile field
+     * 
+     * @return void
+     */
+    function tfq_render_field_cols_mobile() {
+        \MTI\TypeformQuizzes\Admin\SettingsPage::field_cols_mobile();
+    }
+}
+
+if (!function_exists('tfq_render_field_gap')) {
+    /**
+     * Render gap field
+     * 
+     * @return void
+     */
+    function tfq_render_field_gap() {
+        \MTI\TypeformQuizzes\Admin\SettingsPage::field_gap();
+    }
+}
+
+if (!function_exists('tfq_render_field_thumb_height')) {
+    /**
+     * Render thumb_height field
+     * 
+     * @return void
+     */
+    function tfq_render_field_thumb_height() {
+        \MTI\TypeformQuizzes\Admin\SettingsPage::field_thumb_height();
+    }
+}
+
+if (!function_exists('tfq_render_field_border_radius')) {
+    /**
+     * Render border_radius field
+     * 
+     * @return void
+     */
+    function tfq_render_field_border_radius() {
+        \MTI\TypeformQuizzes\Admin\SettingsPage::field_border_radius();
+    }
+}
+
+// Colors & Styling Fields
+if (!function_exists('tfq_render_field_title_color')) {
+    /**
+     * Render title_color field
+     * 
+     * @return void
+     */
+    function tfq_render_field_title_color() {
+        \MTI\TypeformQuizzes\Admin\SettingsPage::field_title_color();
+    }
+}
+
+if (!function_exists('tfq_render_field_title_hover_color')) {
+    /**
+     * Render title_hover_color field
+     * 
+     * @return void
+     */
+    function tfq_render_field_title_hover_color() {
+        \MTI\TypeformQuizzes\Admin\SettingsPage::field_title_hover_color();
+    }
+}
+
+if (!function_exists('tfq_render_field_active_slide_border_color')) {
+    /**
+     * Render active_slide_border_color field
+     * 
+     * @return void
+     */
+    function tfq_render_field_active_slide_border_color() {
+        \MTI\TypeformQuizzes\Admin\SettingsPage::field_active_slide_border_color();
+    }
+}
+
+if (!function_exists('tfq_render_field_darken_inactive_slides')) {
+    /**
+     * Render darken_inactive_slides field
+     * 
+     * @return void
+     */
+    function tfq_render_field_darken_inactive_slides() {
+        \MTI\TypeformQuizzes\Admin\SettingsPage::field_darken_inactive_slides();
+    }
+}
+
+// Navigation Controls Fields
+if (!function_exists('tfq_render_field_controls_spacing')) {
+    /**
+     * Render controls_spacing field
+     * 
+     * @return void
+     */
+    function tfq_render_field_controls_spacing() {
+        \MTI\TypeformQuizzes\Admin\SettingsPage::field_controls_spacing();
+    }
+}
+
+if (!function_exists('tfq_render_field_controls_spacing_tablet')) {
+    /**
+     * Render controls_spacing_tablet field
+     * 
+     * @return void
+     */
+    function tfq_render_field_controls_spacing_tablet() {
+        \MTI\TypeformQuizzes\Admin\SettingsPage::field_controls_spacing_tablet();
+    }
+}
+
+if (!function_exists('tfq_render_field_controls_bottom_spacing')) {
+    /**
+     * Render controls_bottom_spacing field
+     * 
+     * @return void
+     */
+    function tfq_render_field_controls_bottom_spacing() {
+        \MTI\TypeformQuizzes\Admin\SettingsPage::field_controls_bottom_spacing();
+    }
+}
+
+if (!function_exists('tfq_render_field_arrow_border_radius')) {
+    /**
+     * Render arrow_border_radius field
+     * 
+     * @return void
+     */
+    function tfq_render_field_arrow_border_radius() {
+        \MTI\TypeformQuizzes\Admin\SettingsPage::field_arrow_border_radius();
+    }
+}
+
+if (!function_exists('tfq_render_field_arrow_padding')) {
+    /**
+     * Render arrow_padding field
+     * 
+     * @return void
+     */
+    function tfq_render_field_arrow_padding() {
+        \MTI\TypeformQuizzes\Admin\SettingsPage::field_arrow_padding();
+    }
+}
+
+if (!function_exists('tfq_render_field_arrow_width')) {
+    /**
+     * Render arrow_width field
+     * 
+     * @return void
+     */
+    function tfq_render_field_arrow_width() {
+        \MTI\TypeformQuizzes\Admin\SettingsPage::field_arrow_width();
+    }
+}
+
+if (!function_exists('tfq_render_field_arrow_height')) {
+    /**
+     * Render arrow_height field
+     * 
+     * @return void
+     */
+    function tfq_render_field_arrow_height() {
+        \MTI\TypeformQuizzes\Admin\SettingsPage::field_arrow_height();
+    }
+}
+
+if (!function_exists('tfq_render_field_arrow_bg_color')) {
+    /**
+     * Render arrow_bg_color field
+     * 
+     * @return void
+     */
+    function tfq_render_field_arrow_bg_color() {
+        \MTI\TypeformQuizzes\Admin\SettingsPage::field_arrow_bg_color();
+    }
+}
+
+if (!function_exists('tfq_render_field_arrow_hover_bg_color')) {
+    /**
+     * Render arrow_hover_bg_color field
+     * 
+     * @return void
+     */
+    function tfq_render_field_arrow_hover_bg_color() {
+        \MTI\TypeformQuizzes\Admin\SettingsPage::field_arrow_hover_bg_color();
+    }
+}
+
+if (!function_exists('tfq_render_field_arrow_icon_color')) {
+    /**
+     * Render arrow_icon_color field
+     * 
+     * @return void
+     */
+    function tfq_render_field_arrow_icon_color() {
+        \MTI\TypeformQuizzes\Admin\SettingsPage::field_arrow_icon_color();
+    }
+}
+
+if (!function_exists('tfq_render_field_arrow_icon_hover_color')) {
+    /**
+     * Render arrow_icon_hover_color field
+     * 
+     * @return void
+     */
+    function tfq_render_field_arrow_icon_hover_color() {
+        \MTI\TypeformQuizzes\Admin\SettingsPage::field_arrow_icon_hover_color();
+    }
+}
+
+if (!function_exists('tfq_render_field_arrow_icon_size')) {
+    /**
+     * Render arrow_icon_size field
+     * 
+     * @return void
+     */
+    function tfq_render_field_arrow_icon_size() {
+        \MTI\TypeformQuizzes\Admin\SettingsPage::field_arrow_icon_size();
+    }
+}
+
+// Pagination Fields
+if (!function_exists('tfq_render_field_pagination_dot_color')) {
+    /**
+     * Render pagination_dot_color field
+     * 
+     * @return void
+     */
+    function tfq_render_field_pagination_dot_color() {
+        \MTI\TypeformQuizzes\Admin\SettingsPage::field_pagination_dot_color();
+    }
+}
+
+if (!function_exists('tfq_render_field_pagination_active_dot_color')) {
+    /**
+     * Render pagination_active_dot_color field
+     * 
+     * @return void
+     */
+    function tfq_render_field_pagination_active_dot_color() {
+        \MTI\TypeformQuizzes\Admin\SettingsPage::field_pagination_active_dot_color();
+    }
+}
+
+if (!function_exists('tfq_render_field_pagination_dot_gap')) {
+    /**
+     * Render pagination_dot_gap field
+     * 
+     * @return void
+     */
+    function tfq_render_field_pagination_dot_gap() {
+        \MTI\TypeformQuizzes\Admin\SettingsPage::field_pagination_dot_gap();
+    }
+}
+
+if (!function_exists('tfq_render_field_pagination_dot_size')) {
+    /**
+     * Render pagination_dot_size field
+     * 
+     * @return void
+     */
+    function tfq_render_field_pagination_dot_size() {
+        \MTI\TypeformQuizzes\Admin\SettingsPage::field_pagination_dot_size();
+    }
+}

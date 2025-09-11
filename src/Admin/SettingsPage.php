@@ -69,8 +69,8 @@ final class SettingsPage
         // Basic Configuration Section
         add_settings_section(
             'tfq_basic_config',
-            __('Basic Configuration', 'typeform-quizzes'),
             null,
+            [__CLASS__, 'render_section_header'],
             'typeform-quizzes-tools'
         );
 
@@ -101,8 +101,8 @@ final class SettingsPage
         // Layout & Grid Settings Section
         add_settings_section(
             'tfq_layout_grid',
-            __('Layout & Grid Settings', 'typeform-quizzes'),
             null,
+            [__CLASS__, 'render_section_header'],
             'typeform-quizzes-tools'
         );
 
@@ -165,8 +165,8 @@ final class SettingsPage
         // Colors & Styling Section
         add_settings_section(
             'tfq_colors_styling',
-            __('Colors & Styling', 'typeform-quizzes'),
             null,
+            [__CLASS__, 'render_section_header'],
             'typeform-quizzes-tools'
         );
 
@@ -205,8 +205,8 @@ final class SettingsPage
         // Navigation Controls Section
         add_settings_section(
             'tfq_navigation_controls',
-            __('Navigation Controls', 'typeform-quizzes'),
             null,
+            [__CLASS__, 'render_section_header'],
             'typeform-quizzes-tools'
         );
 
@@ -309,8 +309,8 @@ final class SettingsPage
         // Pagination Section
         add_settings_section(
             'tfq_pagination',
-            __('Pagination', 'typeform-quizzes'),
             null,
+            [__CLASS__, 'render_section_header'],
             'typeform-quizzes-tools'
         );
 
@@ -679,5 +679,50 @@ final class SettingsPage
                class="small-text" min="4" max="20">
         <p class="description"><?php esc_html_e('Size of pagination dots in pixels (default: 8px)', 'typeform-quizzes'); ?></p>
         <?php
+    }
+
+    /**
+     * Render section header with enhanced styling
+     * 
+     * @param array $args Section arguments
+     * @return void
+     */
+    public static function render_section_header($args): void
+    {
+        $section_id = $args['id'];
+        $section_title = $args['title'];
+        
+        // Map section IDs to their display names and icons
+        $section_info = [
+            'tfq_basic_config' => [
+                'title' => __('Basic Configuration', 'typeform-quizzes'),
+                'icon' => '⚙️'
+            ],
+            'tfq_layout_grid' => [
+                'title' => __('Layout & Grid Settings', 'typeform-quizzes'),
+                'icon' => '📐'
+            ],
+            'tfq_colors_styling' => [
+                'title' => __('Colors & Styling', 'typeform-quizzes'),
+                'icon' => '🎨'
+            ],
+            'tfq_navigation_controls' => [
+                'title' => __('Navigation Controls', 'typeform-quizzes'),
+                'icon' => '🎮'
+            ],
+            'tfq_pagination' => [
+                'title' => __('Pagination', 'typeform-quizzes'),
+                'icon' => '🔘'
+            ]
+        ];
+        
+        $info = $section_info[$section_id] ?? [
+            'title' => $section_title,
+            'icon' => '⚙️'
+        ];
+        
+        echo '<h3 data-section="' . esc_attr($section_id) . '">';
+        echo esc_html($info['title']);
+        echo '</h3>';
     }
 }

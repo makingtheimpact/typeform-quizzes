@@ -403,6 +403,9 @@ final class Typeform_Quizzes {
         // Migrate existing order data on admin init
         add_action('admin_init', [__CLASS__, 'migrate_order_data']);
         
+        // Fix duplicate order values on admin init (runs after migration)
+        add_action('admin_init', [__CLASS__, 'fix_duplicate_order_values']);
+        
         // Ensure admin list uses correct ordering
         add_action('pre_get_posts', [__CLASS__, 'admin_list_ordering']);
     }
@@ -445,9 +448,18 @@ final class Typeform_Quizzes {
             case 'quiz_order':
                 $menu_order = get_post($post_id)->menu_order;
                 $meta_order = get_post_meta($post_id, '_quiz_order', true);
-                // Show menu_order if available, otherwise show meta field
-                $order = $menu_order ?: $meta_order;
-                echo esc_html($order ?: '0');
+                
+                // Prioritize menu_order (WordPress native ordering)
+                // Only fall back to meta field if menu_order is explicitly 0 and meta exists
+                if ($menu_order > 0) {
+                    $order = $menu_order;
+                } elseif ($menu_order === 0 && $meta_order !== '' && $meta_order !== false) {
+                    $order = $meta_order;
+                } else {
+                    $order = $menu_order; // This will be 0
+                }
+                
+                echo esc_html($order);
                 break;
                 
             case 'featured_image':
@@ -789,7 +801,9 @@ final class Typeform_Quizzes {
                 }
                 
                 $quiz_ids[] = $quiz_id;
-                $update_cases[] = $wpdb->prepare("WHEN %d THEN %d", $quiz_id, $index);
+                // Start order from 1 instead of 0 for better user experience
+                $order_value = $index + 1;
+                $update_cases[] = $wpdb->prepare("WHEN %d THEN %d", $quiz_id, $order_value);
             }
             
             if (empty($update_cases)) {
@@ -882,21 +896,88 @@ final class Typeform_Quizzes {
                     'key' => '_quiz_order',
                     'compare' => 'EXISTS'
                 ]
-            ]
+            ],
+            'orderby' => 'meta_value_num',
+            'meta_key' => '_quiz_order',
+            'order' => 'ASC'
         ]);
         
+        $used_orders = [];
         foreach ($quizzes as $quiz) {
             $order = get_post_meta($quiz->ID, '_quiz_order', true);
-            if ($order !== '' && $quiz->menu_order == 0) {
+            if ($order !== '' && $order !== false && $quiz->menu_order == 0) {
+                $order_value = intval($order);
+                
+                // Ensure unique order values
+                while (in_array($order_value, $used_orders)) {
+                    $order_value++;
+                }
+                
+                $used_orders[] = $order_value;
+                
                 wp_update_post([
                     'ID' => $quiz->ID,
-                    'menu_order' => intval($order)
+                    'menu_order' => $order_value
                 ]);
             }
         }
         
         // Mark migration as complete
         update_option('typeform_quiz_order_migrated', true);
+        
+        // Also fix any existing duplicate order values
+        self::fix_duplicate_order_values();
+    }
+    
+    /**
+     * Fix duplicate order values in menu_order
+     */
+    public static function fix_duplicate_order_values() {
+        global $wpdb;
+        
+        // Only run for admin users
+        if (!is_admin() || !current_user_can('manage_options')) {
+            return;
+        }
+        
+        // Get all quizzes ordered by menu_order
+        $quizzes = get_posts([
+            'post_type' => 'typeform_quiz',
+            'post_status' => 'publish',
+            'numberposts' => -1,
+            'orderby' => 'menu_order',
+            'order' => 'ASC'
+        ]);
+        
+        $used_orders = [];
+        $needs_update = false;
+        
+        foreach ($quizzes as $quiz) {
+            $current_order = $quiz->menu_order;
+            
+            // If this order value is already used, find the next available one
+            if (in_array($current_order, $used_orders)) {
+                $new_order = $current_order;
+                while (in_array($new_order, $used_orders)) {
+                    $new_order++;
+                }
+                
+                // Update the post with the new order
+                wp_update_post([
+                    'ID' => $quiz->ID,
+                    'menu_order' => $new_order
+                ]);
+                
+                $used_orders[] = $new_order;
+                $needs_update = true;
+            } else {
+                $used_orders[] = $current_order;
+            }
+        }
+        
+        if ($needs_update && defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('Typeform Quizzes: Fixed duplicate order values');
+        }
     }
     
     /**
@@ -1283,22 +1364,7 @@ final class Typeform_Quizzes {
         );
     }
 
-    public static function register_settings() {
-        if ( ! current_user_can('manage_options') ) {
-            return;
-        }
-        // Delegate to class while keeping behavior unchanged
-        if ( class_exists('\MTI\TypeformQuizzes\Admin\SettingsPage') ) {
-            \MTI\TypeformQuizzes\Admin\SettingsPage::register_settings();
-        } else {
-            // Fallback (original code) to stay safe if src/ is missing
-            register_setting('typeform_quizzes_defaults_options', 'typeform_quizzes_defaults', [
-                'type'              => 'array',
-                'sanitize_callback' => [__CLASS__, 'sanitize_defaults'],
-                'default'           => []
-            ]);
-        }
-    }
+    // Settings registration moved to Admin\SettingsPage
     
     
     /**
@@ -1605,7 +1671,6 @@ final class Typeform_Quizzes {
                     <?php esc_html_e('Configure default values for all shortcode parameters. These settings will be used when no specific values are provided in the shortcode.', 'typeform-quizzes'); ?>
                 </p>
 
-            <h2><?php esc_html_e('Default Shortcode Settings', 'typeform-quizzes'); ?></h2>
             <form method="post" action="options.php">
                 <?php
                 settings_fields('typeform_quizzes_defaults_options'); // same group

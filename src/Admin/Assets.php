@@ -47,6 +47,9 @@ class Assets
         if ($hook === 'typeform_quiz_page_typeform-quizzes-tools') {
             wp_enqueue_style('wp-color-picker');
             wp_enqueue_script('wp-color-picker');
+            
+            // Add custom admin styles for improved settings appearance
+            wp_add_inline_style('wp-color-picker', self::get_admin_styles());
         }
 
         // Load reorder functionality on quiz list page
@@ -481,6 +484,172 @@ class Assets
         .reorder-modal-content .loading .spinner {
             float: none;
             margin: 0 auto 10px;
+        }
+        ";
+    }
+
+    /**
+     * Get admin styles for improved settings appearance
+     * 
+     * @return string
+     */
+    public static function get_admin_styles()
+    {
+        return "
+        /* Enhanced Settings Section Headings */
+        .typeform-quizzes-tools h3,
+        h3[data-section] {
+            color: #555 !important;
+            font-size: 20px !important;
+            font-weight: 700 !important;
+            margin: 35px 0 15px 0 !important;
+            padding: 0 0 8px 0 !important;
+            border: none !important;
+            border-bottom: 2px solid #ccc !important;
+            position: relative !important;
+        }
+        
+        .typeform-quizzes-tools h3:first-of-type,
+        h3[data-section]:first-of-type {
+            margin-top: 25px !important;
+        }
+        
+        /* Add icons to section headings */
+        h3[data-section='tfq_basic_config']:before {
+            content: '⚙️ ';
+            margin-right: 8px;
+        }
+        
+        h3[data-section='tfq_layout_grid']:before {
+            content: '📐 ';
+            margin-right: 8px;
+        }
+        
+        h3[data-section='tfq_colors_styling']:before {
+            content: '🎨 ';
+            margin-right: 8px;
+        }
+        
+        h3[data-section='tfq_navigation_controls']:before {
+            content: '🎮 ';
+            margin-right: 8px;
+        }
+        
+        h3[data-section='tfq_pagination']:before {
+            content: '🔘 ';
+            margin-right: 8px;
+        }
+        
+        /* Enhanced form table styling */
+        .typeform-quizzes-tools .form-table {
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin: 0 0 30px 0 !important;
+        }
+        
+        .typeform-quizzes-tools .form-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+            padding: 15px 20px !important;
+            border-bottom: 1px solid #e1e5e9;
+            width: 200px;
+        }
+        
+        .typeform-quizzes-tools .form-table td {
+            padding: 15px 20px !important;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .typeform-quizzes-tools .form-table tr:last-child th,
+        .typeform-quizzes-tools .form-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        /* Enhanced field descriptions */
+        .typeform-quizzes-tools .description {
+            color: #666 !important;
+            font-style: italic;
+            margin-top: 5px !important;
+            padding: 8px 12px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            border-left: 3px solid #0073aa;
+        }
+        
+        /* Enhanced input styling */
+        .typeform-quizzes-tools input[type='text'],
+        .typeform-quizzes-tools input[type='number'],
+        .typeform-quizzes-tools input[type='url'],
+        .typeform-quizzes-tools select {
+            border: 2px solid #e1e5e9 !important;
+            border-radius: 6px !important;
+            padding: 8px 12px !important;
+            transition: border-color 0.3s ease !important;
+        }
+        
+        .typeform-quizzes-tools input[type='text']:focus,
+        .typeform-quizzes-tools input[type='number']:focus,
+        .typeform-quizzes-tools input[type='url']:focus,
+        .typeform-quizzes-tools select:focus {
+            border-color: #0073aa !important;
+            box-shadow: 0 0 0 3px rgba(0, 115, 170, 0.1) !important;
+            outline: none !important;
+        }
+        
+        /* Enhanced checkbox styling */
+        .typeform-quizzes-tools input[type='checkbox'] {
+            transform: scale(1.2);
+            margin-right: 8px;
+        }
+        
+        /* Enhanced submit button */
+        .typeform-quizzes-tools .submit .button-primary {
+            background: linear-gradient(135deg, #0073aa 0%, #005177 100%) !important;
+            border: none !important;
+            border-radius: 6px !important;
+            padding: 12px 24px !important;
+            font-size: 16px !important;
+            font-weight: 600 !important;
+            box-shadow: 0 2px 8px rgba(0, 115, 170, 0.3) !important;
+            transition: all 0.3s ease !important;
+        }
+        
+        .typeform-quizzes-tools .submit .button-primary:hover {
+            background: linear-gradient(135deg, #005177 0%, #003d5c 100%) !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 115, 170, 0.4) !important;
+        }
+        
+        /* Section spacing improvements */
+        .typeform-quizzes-tools .form-table + .form-table {
+            margin-top: 40px !important;
+        }
+        
+        /* Responsive improvements */
+        @media (max-width: 768px) {
+            .typeform-quizzes-tools h3,
+            h3[data-section] {
+                font-size: 18px !important;
+            }
+            
+            .typeform-quizzes-tools .form-table th,
+            .typeform-quizzes-tools .form-table td {
+                padding: 12px 15px !important;
+            }
+            
+            .typeform-quizzes-tools .form-table th {
+                width: auto;
+                display: block;
+                border-bottom: none;
+            }
+            
+            .typeform-quizzes-tools .form-table td {
+                display: block;
+                padding-top: 5px !important;
+            }
         }
         ";
     }
