@@ -40,8 +40,8 @@ class SliderRenderer
      */
     public static function render_quizzes_slider_html($quizzes, $slider_id, $atts, $max_width, $thumb_height, $cols_desktop, $cols_tablet, $cols_mobile, $gap, $center_on_click) {
         $border_radius = intval($atts['border_radius']);
-        $title_color = sanitize_hex_color($atts['title_color']);
-        $title_hover_color = sanitize_hex_color($atts['title_hover_color']);
+        $title_color = \MTI\TypeformQuizzes\Support\Sanitize::hex_color($atts['title_color']);
+        $title_hover_color = \MTI\TypeformQuizzes\Support\Sanitize::hex_color($atts['title_hover_color']);
         $controls_spacing = intval($atts['controls_spacing']);
         $controls_spacing_tablet = intval($atts['controls_spacing_tablet']);
         $controls_bottom_spacing = intval($atts['controls_bottom_spacing']);
@@ -49,16 +49,16 @@ class SliderRenderer
         $arrow_padding = intval($atts['arrow_padding']);
         $arrow_width = intval($atts['arrow_width']);
         $arrow_height = intval($atts['arrow_height']);
-        $arrow_bg_color = sanitize_hex_color($atts['arrow_bg_color']);
-        $arrow_hover_bg_color = sanitize_hex_color($atts['arrow_hover_bg_color']);
-        $arrow_icon_color = sanitize_hex_color($atts['arrow_icon_color']);
-        $arrow_icon_hover_color = sanitize_hex_color($atts['arrow_icon_hover_color']);
+        $arrow_bg_color = \MTI\TypeformQuizzes\Support\Sanitize::hex_color($atts['arrow_bg_color']);
+        $arrow_hover_bg_color = \MTI\TypeformQuizzes\Support\Sanitize::hex_color($atts['arrow_hover_bg_color']);
+        $arrow_icon_color = \MTI\TypeformQuizzes\Support\Sanitize::hex_color($atts['arrow_icon_color']);
+        $arrow_icon_hover_color = \MTI\TypeformQuizzes\Support\Sanitize::hex_color($atts['arrow_icon_hover_color']);
         $arrow_icon_size = intval($atts['arrow_icon_size']);
-        $pagination_dot_color = sanitize_hex_color($atts['pagination_dot_color']);
-        $pagination_active_dot_color = sanitize_hex_color($atts['pagination_active_dot_color']);
+        $pagination_dot_color = \MTI\TypeformQuizzes\Support\Sanitize::hex_color($atts['pagination_dot_color']);
+        $pagination_active_dot_color = \MTI\TypeformQuizzes\Support\Sanitize::hex_color($atts['pagination_active_dot_color']);
         $pagination_dot_gap = min(max(intval($atts['pagination_dot_gap']), 0), 50);
         $pagination_dot_size = min(max(intval($atts['pagination_dot_size']), 4), 20);
-        $active_slide_border_color = sanitize_hex_color($atts['active_slide_border_color']);
+        $active_slide_border_color = \MTI\TypeformQuizzes\Support\Sanitize::hex_color($atts['active_slide_border_color']);
         $darken_inactive_slides = intval($atts['darken_inactive_slides']);
 
         // Set thumbnail height

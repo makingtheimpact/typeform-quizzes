@@ -412,10 +412,7 @@ final class Typeform_Quizzes {
         // Add reorder functionality
         add_action('restrict_manage_posts', [__CLASS__, 'add_reorder_button']);
         add_action('admin_footer', [__CLASS__, 'add_reorder_modal']);
-        // Guard against double-hooking - only register if not already registered
-        if (!has_action('wp_ajax_tfq_reorder')) {
-            add_action('wp_ajax_tfq_reorder', 'tfq_ajax_reorder');
-        }
+        // AJAX handlers are now managed by the class-based system
         
         // Migrate existing order data on admin init
         add_action('admin_init', [__CLASS__, 'migrate_order_data']);
@@ -600,31 +597,10 @@ final class Typeform_Quizzes {
             return false;
         }
         
-        // Rate limiting check
-        if (!self::check_rate_limit()) {
-            wp_send_json_error(__('Rate limit exceeded', 'typeform-quizzes'));
-            return false;
-        }
         
         return true;
     }
     
-    /**
-     * Check rate limiting for AJAX requests
-     */
-    private static function check_rate_limit() {
-        $user_id = get_current_user_id();
-        $transient_key = 'tfq_ajax_rate_limit_' . $user_id;
-        $requests = get_transient($transient_key) ?: 0;
-        
-        // Allow 10 requests per minute
-        if ($requests >= 10) {
-            return false;
-        }
-        
-        set_transient($transient_key, $requests + 1, 60);
-        return true;
-    }
     
     /**
      * Sanitize shortcode attributes
@@ -686,207 +662,6 @@ final class Typeform_Quizzes {
         
         return $sanitized;
     }
-    
-    /**
-     * Handle AJAX request for reordering
-     */
-    public static function handle_reorder_ajax() {
-        // Enable error logging for debugging
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('Typeform Quizzes AJAX: Starting handle_reorder_ajax');
-        }
-        
-        try {
-            // Enhanced security checks
-            if (!self::validate_ajax_request()) {
-                return;
-            }
-            
-            $action = sanitize_text_field($_POST['action_type'] ?? '');
-            
-            // Validate action type
-            $allowed_actions = ['get_quizzes', 'update_order', 'save_order'];
-            if (!in_array($action, $allowed_actions, true)) {
-                if (defined('WP_DEBUG') && WP_DEBUG) {
-                    error_log('Typeform Quizzes AJAX: Invalid action type: ' . $action);
-                }
-                wp_send_json_error(__('Invalid action type', 'typeform-quizzes'));
-            }
-            
-            if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('Typeform Quizzes AJAX: Action type: ' . $action);
-            }
-        
-        if ($action === 'get_quizzes') {
-            $quizzes = get_posts([
-                'post_type' => 'typeform_quiz',
-                'post_status' => 'publish',
-                'numberposts' => -1,
-                'orderby' => 'menu_order',
-                'order' => 'ASC'
-            ]);
-            
-            if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('Typeform Quizzes AJAX: Found ' . count($quizzes) . ' quizzes');
-            }
-            
-            $quiz_data = [];
-            foreach ($quizzes as $quiz) {
-                $quiz_data[] = [
-                    'id' => $quiz->ID,
-                    'title' => $quiz->post_title,
-                    'menu_order' => $quiz->menu_order,
-                    'thumbnail' => get_the_post_thumbnail_url($quiz->ID, [50, 50]) ?: ''
-                ];
-            }
-            
-            if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('Typeform Quizzes AJAX: Quiz data: ' . print_r($quiz_data, true));
-            }
-            
-            wp_send_json_success($quiz_data);
-        }
-        
-        if ($action === 'save_order') {
-            if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('Typeform Quizzes AJAX: Processing save_order action');
-            }
-            
-            // Check if order_data exists
-            if (!isset($_POST['order_data'])) {
-                if (defined('WP_DEBUG') && WP_DEBUG) {
-                    error_log('Typeform Quizzes AJAX: Missing order_data');
-                }
-                wp_send_json_error(__('Missing order data', 'typeform-quizzes'));
-            }
-            
-            $order_data = json_decode(stripslashes($_POST['order_data']), true);
-            
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                if (defined('WP_DEBUG') && WP_DEBUG) {
-                    error_log('Typeform Quizzes AJAX: JSON decode error: ' . json_last_error_msg());
-                }
-                wp_send_json_error(__('Invalid JSON data: ', 'typeform-quizzes') . json_last_error_msg());
-            }
-            
-            if (!is_array($order_data)) {
-                if (defined('WP_DEBUG') && WP_DEBUG) {
-                    error_log('Typeform Quizzes AJAX: Order data is not an array: ' . print_r($order_data, true));
-                }
-                wp_send_json_error(__('Invalid order data format', 'typeform-quizzes'));
-            }
-            
-            if (empty($order_data)) {
-                if (defined('WP_DEBUG') && WP_DEBUG) {
-                    error_log('Typeform Quizzes AJAX: Empty order data');
-                }
-                wp_send_json_error(__('No order data provided', 'typeform-quizzes'));
-            }
-            
-            global $wpdb;
-            
-            // Check database connection
-            if (!$wpdb->db_connect()) {
-                if (defined('WP_DEBUG') && WP_DEBUG) {
-                    error_log('Typeform Quizzes AJAX: Database connection failed');
-                }
-                wp_send_json_error(__('Database connection failed', 'typeform-quizzes'));
-            }
-            
-            // Prepare bulk update query
-            $update_cases = [];
-            $quiz_ids = [];
-            
-            foreach ($order_data as $index => $quiz_id) {
-                $quiz_id = intval($quiz_id);
-                // Stricter validation for quiz IDs
-                if ($quiz_id <= 0 || $quiz_id > 999999) {
-                    if (defined('WP_DEBUG') && WP_DEBUG) {
-                        error_log('Typeform Quizzes AJAX: Invalid quiz ID: ' . $quiz_id);
-                    }
-                    wp_send_json_error(__('Invalid quiz ID in order data', 'typeform-quizzes'));
-                }
-                
-                // Verify the quiz actually exists
-                $quiz_exists = get_post($quiz_id);
-                if (!$quiz_exists || $quiz_exists->post_type !== 'typeform_quiz') {
-                    if (defined('WP_DEBUG') && WP_DEBUG) {
-                        error_log('Typeform Quizzes AJAX: Quiz does not exist: ' . $quiz_id);
-                    }
-                    wp_send_json_error(__('Quiz not found in order data', 'typeform-quizzes'));
-                }
-                
-                $quiz_ids[] = $quiz_id;
-                // Start order from 1 instead of 0 for better user experience
-                $order_value = $index + 1;
-                $update_cases[] = $wpdb->prepare("WHEN %d THEN %d", $quiz_id, $order_value);
-            }
-            
-            if (empty($update_cases)) {
-                if (defined('WP_DEBUG') && WP_DEBUG) {
-                    error_log('Typeform Quizzes AJAX: No valid quiz IDs to update');
-                }
-                wp_send_json_error(__('No valid quiz IDs to update', 'typeform-quizzes'));
-            }
-            
-            // Use simple bulk update without transactions
-            $case_sql = implode(' ', $update_cases);
-            $ids_sql = implode(',', array_map('intval', $quiz_ids));
-            
-            $query = "
-                UPDATE {$wpdb->posts} 
-                SET menu_order = CASE ID {$case_sql} END 
-                WHERE ID IN ({$ids_sql}) AND post_type = 'typeform_quiz'
-            ";
-            
-            if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('Typeform Quizzes AJAX: Executing query: ' . $query);
-                error_log('Typeform Quizzes AJAX: Order data: ' . print_r($order_data, true));
-                error_log('Typeform Quizzes AJAX: Quiz IDs: ' . print_r($quiz_ids, true));
-            }
-            
-            $result = $wpdb->query($query);
-            
-            if ($result === false) {
-                if (defined('WP_DEBUG') && WP_DEBUG) {
-                    error_log('Typeform Quizzes AJAX: Query failed: ' . $wpdb->last_error);
-                }
-                wp_send_json_error(__('Failed to update quiz order: ', 'typeform-quizzes') . $wpdb->last_error);
-            }
-            
-            if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('Typeform Quizzes AJAX: Updated ' . $result . ' rows');
-                
-                // Verify the update worked by checking the actual menu_order values
-                $verification_query = "SELECT ID, post_title, menu_order FROM {$wpdb->posts} WHERE ID IN (" . implode(',', array_map('intval', $quiz_ids)) . ") AND post_type = 'typeform_quiz' ORDER BY menu_order ASC";
-                $verification_results = $wpdb->get_results($verification_query);
-                error_log('Typeform Quizzes AJAX: Verification - Current menu_order values: ' . print_r($verification_results, true));
-            }
-            
-            if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('Typeform Quizzes AJAX: Order saved successfully');
-            }
-            
-            wp_send_json_success('Order saved successfully');
-        }
-        
-        wp_send_json_error(__('Invalid action: ', 'typeform-quizzes') . $action);
-        
-        } catch (Exception $e) {
-            if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('Typeform Quizzes AJAX: Fatal error: ' . $e->getMessage());
-                error_log('Typeform Quizzes AJAX: Stack trace: ' . $e->getTraceAsString());
-            }
-            wp_send_json_error(__('Error: ', 'typeform-quizzes') . $e->getMessage());
-        } catch (Error $e) {
-            if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('Typeform Quizzes AJAX: Fatal PHP error: ' . $e->getMessage());
-                error_log('Typeform Quizzes AJAX: Stack trace: ' . $e->getTraceAsString());
-            }
-            wp_send_json_error(__('Fatal error: ', 'typeform-quizzes') . $e->getMessage());
-        }
-    }
-    
     
 
     /**
@@ -3471,8 +3246,8 @@ final class Typeform_Quizzes {
      */
     public static function render_quizzes_slider_html($quizzes, $slider_id, $atts, $max_width, $thumb_height, $cols_desktop, $cols_tablet, $cols_mobile, $gap, $center_on_click) {
         $border_radius = intval($atts['border_radius']);
-        $title_color = sanitize_hex_color($atts['title_color']);
-        $title_hover_color = sanitize_hex_color($atts['title_hover_color']);
+        $title_color = \MTI\TypeformQuizzes\Support\Sanitize::hex_color($atts['title_color']);
+        $title_hover_color = \MTI\TypeformQuizzes\Support\Sanitize::hex_color($atts['title_hover_color']);
         $controls_spacing = intval($atts['controls_spacing']);
         $controls_spacing_tablet = intval($atts['controls_spacing_tablet']);
         $controls_bottom_spacing = intval($atts['controls_bottom_spacing']);
@@ -3480,16 +3255,16 @@ final class Typeform_Quizzes {
         $arrow_padding = intval($atts['arrow_padding']);
         $arrow_width = intval($atts['arrow_width']);
         $arrow_height = intval($atts['arrow_height']);
-        $arrow_bg_color = sanitize_hex_color($atts['arrow_bg_color']);
-        $arrow_hover_bg_color = sanitize_hex_color($atts['arrow_hover_bg_color']);
-        $arrow_icon_color = sanitize_hex_color($atts['arrow_icon_color']);
-        $arrow_icon_hover_color = sanitize_hex_color($atts['arrow_icon_hover_color']);
+        $arrow_bg_color = \MTI\TypeformQuizzes\Support\Sanitize::hex_color($atts['arrow_bg_color']);
+        $arrow_hover_bg_color = \MTI\TypeformQuizzes\Support\Sanitize::hex_color($atts['arrow_hover_bg_color']);
+        $arrow_icon_color = \MTI\TypeformQuizzes\Support\Sanitize::hex_color($atts['arrow_icon_color']);
+        $arrow_icon_hover_color = \MTI\TypeformQuizzes\Support\Sanitize::hex_color($atts['arrow_icon_hover_color']);
         $arrow_icon_size = intval($atts['arrow_icon_size']);
-        $pagination_dot_color = sanitize_hex_color($atts['pagination_dot_color']);
-        $pagination_active_dot_color = sanitize_hex_color($atts['pagination_active_dot_color']);
+        $pagination_dot_color = \MTI\TypeformQuizzes\Support\Sanitize::hex_color($atts['pagination_dot_color']);
+        $pagination_active_dot_color = \MTI\TypeformQuizzes\Support\Sanitize::hex_color($atts['pagination_active_dot_color']);
         $pagination_dot_gap = min(max(intval($atts['pagination_dot_gap']), 0), 50);
         $pagination_dot_size = min(max(intval($atts['pagination_dot_size']), 4), 20);
-        $active_slide_border_color = sanitize_hex_color($atts['active_slide_border_color']);
+        $active_slide_border_color = \MTI\TypeformQuizzes\Support\Sanitize::hex_color($atts['active_slide_border_color']);
         $darken_inactive_slides = intval($atts['darken_inactive_slides']);
 
         // Set thumbnail height
