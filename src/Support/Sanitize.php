@@ -282,4 +282,68 @@ final class Sanitize
     {
         return self::boolean($value);
     }
+
+    /**
+     * Sanitize shortcode attributes
+     * 
+     * @param array $atts Shortcode attributes
+     * @return array Sanitized attributes
+     */
+    public static function shortcode_attributes(array $atts): array
+    {
+        $sanitized = [];
+        
+        foreach ($atts as $key => $value) {
+            $key = sanitize_key($key);
+            
+            switch ($key) {
+                case 'max':
+                case 'max_width':
+                case 'thumb_height':
+                case 'cols_desktop':
+                case 'cols_tablet':
+                case 'cols_mobile':
+                case 'gap':
+                case 'border_radius':
+                case 'controls_spacing':
+                case 'controls_spacing_tablet':
+                case 'controls_bottom_spacing':
+                case 'arrow_border_radius':
+                case 'arrow_padding':
+                case 'arrow_width':
+                case 'arrow_height':
+                case 'arrow_icon_size':
+                case 'pagination_dot_size':
+                case 'pagination_dot_gap':
+                    $sanitized[$key] = absint($value);
+                    break;
+                    
+                case 'title_color':
+                case 'title_hover_color':
+                case 'arrow_bg_color':
+                case 'arrow_hover_bg_color':
+                case 'arrow_icon_color':
+                case 'arrow_icon_hover_color':
+                case 'pagination_dot_color':
+                case 'pagination_active_dot_color':
+                case 'active_slide_border_color':
+                    $sanitized[$key] = self::hex_color($value);
+                    break;
+                    
+                case 'darken_inactive_slides':
+                    $sanitized[$key] = self::boolean($value);
+                    break;
+                    
+                case 'order':
+                    $sanitized[$key] = self::order($value);
+                    break;
+                    
+                default:
+                    $sanitized[$key] = sanitize_text_field($value);
+                    break;
+            }
+        }
+        
+        return $sanitized;
+    }
 }

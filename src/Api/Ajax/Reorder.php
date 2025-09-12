@@ -27,6 +27,7 @@ final class Reorder
     public static function init(): void
     {
         add_action('wp_ajax_tfq_reorder', [__CLASS__, 'handle']);
+        add_action('wp_ajax_tfq_clear_cache', [__CLASS__, 'clear_cache']);
     }
 
     /**
@@ -181,13 +182,28 @@ final class Reorder
                     // Commit transaction
                     $wpdb->query('COMMIT');
                     
+                    // Clear caches after successful update
+                    wp_cache_flush();
+                    
+                    // Clear any plugin-specific transients
+                    $wpdb->query(
+                        "DELETE FROM {$wpdb->options} 
+                         WHERE option_name LIKE '_transient_tf_quizzes_%' 
+                         OR option_name LIKE '_transient_timeout_tf_quizzes_%'"
+                    );
+                    
                     if (defined('WP_DEBUG') && WP_DEBUG) {
                         error_log("Typeform Quizzes AJAX: Successfully updated {$updated_count} quizzes");
                     }
                     
                     wp_send_json_success([
                         'message' => sprintf(__('Successfully updated %d quizzes', 'typeform-quizzes'), $updated_count),
-                        'updated_count' => $updated_count
+                        'updated_count' => $updated_count,
+                        'debug_info' => [
+                            'total_quizzes' => count($order_data),
+                            'updated_count' => $updated_count,
+                            'wp_debug' => defined('WP_DEBUG') && WP_DEBUG
+                        ]
                     ]);
                     
                 } catch (Exception $e) {
@@ -253,5 +269,81 @@ final class Reorder
         }
         
         return true;
+    }
+
+    /**
+     * Clear caches after successful reorder
+     */
+    public static function clear_cache(): void
+    {
+        // Check if request is AJAX
+        if (!wp_doing_ajax()) {
+            wp_send_json_error(__('Invalid request method', 'typeform-quizzes'));
+            return;
+        }
+
+        // Check if nonce exists before validating
+        if (!isset($_POST['nonce'])) {
+            wp_send_json_error(__('Missing security nonce', 'typeform-quizzes'));
+            return;
+        }
+
+        if (!wp_verify_nonce($_POST['nonce'], 'tfq_reorder')) {
+            wp_send_json_error(__('Invalid security nonce', 'typeform-quizzes'));
+            return;
+        }
+
+        if (!current_user_can('edit_posts')) {
+            wp_send_json_error(__('Insufficient permissions', 'typeform-quizzes'));
+            return;
+        }
+
+        try {
+            // Clear WordPress object cache
+            wp_cache_flush();
+            
+            // Clear any plugin-specific transients
+            global $wpdb;
+            $wpdb->query(
+                "DELETE FROM {$wpdb->options} 
+                 WHERE option_name LIKE '_transient_tf_quizzes_%' 
+                 OR option_name LIKE '_transient_timeout_tf_quizzes_%'"
+            );
+            
+            // Clear any other caches that might affect quiz display
+            if (function_exists('wp_cache_delete_group')) {
+                wp_cache_delete_group('typeform_quizzes');
+            }
+            
+            // Clear any Elementor cache if available
+            if (class_exists('\Elementor\Plugin')) {
+                \Elementor\Plugin::$instance->files_manager->clear_cache();
+            }
+            
+            // Clear any other popular caching plugins
+            if (function_exists('w3tc_flush_all')) {
+                w3tc_flush_all();
+            }
+            
+            if (function_exists('wp_cache_clear_cache')) {
+                wp_cache_clear_cache();
+            }
+            
+            if (function_exists('rocket_clean_domain')) {
+                rocket_clean_domain();
+            }
+            
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('Typeform Quizzes: Cache cleared successfully');
+            }
+            
+            wp_send_json_success(['message' => __('Cache cleared successfully', 'typeform-quizzes')]);
+            
+        } catch (Exception $e) {
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('Typeform Quizzes: Cache clear error: ' . $e->getMessage());
+            }
+            wp_send_json_error(__('Failed to clear cache', 'typeform-quizzes'));
+        }
     }
 }

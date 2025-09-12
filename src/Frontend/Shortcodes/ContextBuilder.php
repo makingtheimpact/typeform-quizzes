@@ -40,7 +40,7 @@ final class ContextBuilder
         }
         
         // Sanitize all input attributes
-        $atts = \Typeform_Quizzes::sanitize_shortcode_attributes($atts);
+        $atts = \MTI\TypeformQuizzes\Support\Sanitize::shortcode_attributes($atts);
         
         // Get defaults from admin settings
         $defaults = get_option('typeform_quizzes_defaults', []);
@@ -83,7 +83,7 @@ final class ContextBuilder
         if ($raw_max === 'all' || intval($raw_max) === 0 || intval($raw_max) === -1) {
             $max_quizzes = -1; // WordPress 'no limit'
         } else {
-            $max_quizzes = min(max(intval($atts['max']), 1), \Typeform_Quizzes::MAX_QUIZZES_LIMIT);
+            $max_quizzes = min(max(intval($atts['max']), 1), \MTI\TypeformQuizzes\Support\Constants::MAX_QUIZZES_LIMIT);
         }
         $max_width = min(max(intval($atts['max_width']), 200), 2000);
         $thumb_height = min(max(intval($atts['thumb_height']), 50), 1000);

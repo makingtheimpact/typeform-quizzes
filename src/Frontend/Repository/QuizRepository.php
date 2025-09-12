@@ -230,11 +230,15 @@ final class QuizRepository
                 
                 $used_orders[] = $order_value;
                 
-                // Update menu_order to match _quiz_order
-                wp_update_post([
-                    'ID' => $quiz->ID,
-                    'menu_order' => $order_value
-                ]);
+                // Update menu_order to match _quiz_order directly in database to avoid triggering save_post
+                global $wpdb;
+                $wpdb->update(
+                    $wpdb->posts,
+                    ['menu_order' => $order_value],
+                    ['ID' => $quiz->ID],
+                    ['%d'],
+                    ['%d']
+                );
                 
                 $updated_count++;
             } elseif ($meta_order === '' || $meta_order === false) {
@@ -249,10 +253,13 @@ final class QuizRepository
                         
                         $used_orders[] = $order_value;
                         
-                        wp_update_post([
-                            'ID' => $quiz->ID,
-                            'menu_order' => $order_value
-                        ]);
+                        $wpdb->update(
+                            $wpdb->posts,
+                            ['menu_order' => $order_value],
+                            ['ID' => $quiz->ID],
+                            ['%d'],
+                            ['%d']
+                        );
                         
                         // Also set the _quiz_order meta to match
                         update_post_meta($quiz->ID, '_quiz_order', $order_value);
@@ -261,10 +268,13 @@ final class QuizRepository
                     } else {
                         // If this is the first quiz and no order is set, assign order 1
                         $used_orders[] = 1;
-                        wp_update_post([
-                            'ID' => $quiz->ID,
-                            'menu_order' => 1
-                        ]);
+                        $wpdb->update(
+                            $wpdb->posts,
+                            ['menu_order' => 1],
+                            ['ID' => $quiz->ID],
+                            ['%d'],
+                            ['%d']
+                        );
                         update_post_meta($quiz->ID, '_quiz_order', 1);
                         $updated_count++;
                     }
@@ -312,11 +322,15 @@ final class QuizRepository
                     $new_order++;
                 }
                 
-                // Update the post with the new order value
-                wp_update_post([
-                    'ID' => $quiz->ID,
-                    'menu_order' => $new_order
-                ]);
+                // Update the post with the new order value directly in database to avoid triggering save_post
+                global $wpdb;
+                $wpdb->update(
+                    $wpdb->posts,
+                    ['menu_order' => $new_order],
+                    ['ID' => $quiz->ID],
+                    ['%d'],
+                    ['%d']
+                );
                 
                 $used_orders[] = $new_order;
                 $duplicates_found = true;
