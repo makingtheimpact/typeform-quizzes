@@ -1,0 +1,26 @@
+{
+    "name": "mti/typeform-quizzes",
+    "description": "WordPress plugin for creating interactive Typeform quiz sliders",
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "Making The Impact LLC",
+            "email": "info@makingtheimpact.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "MTI\\TypeformQuizzes\\": "src/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

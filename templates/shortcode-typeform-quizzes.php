@@ -9,7 +9,6 @@ $cols_desktop = $ctx['cols_desktop'];
 $cols_tablet = $ctx['cols_tablet'];
 $cols_mobile = $ctx['cols_mobile'];
 $gap = $ctx['gap'];
-$center_on_click = $ctx['center_on_click'];
 
 // Use pre-computed styling attributes from context
 $border_radius = $ctx['border_radius'];
@@ -41,7 +40,6 @@ $thumb_height_css = $ctx['thumb_height_css'];
      data-cols-tablet="<?php echo $cols_tablet; ?>"
      data-cols-mobile="<?php echo $cols_mobile; ?>"
      data-gap="<?php echo $gap; ?>"
-     data-center-on-click="<?php echo $center_on_click ? 'true' : 'false'; ?>"
      data-pagination-dot-color="<?php echo esc_attr($pagination_dot_color); ?>"
      data-pagination-active-dot-color="<?php echo esc_attr($pagination_active_dot_color); ?>"
      data-pagination-dot-size="<?php echo $pagination_dot_size; ?>"

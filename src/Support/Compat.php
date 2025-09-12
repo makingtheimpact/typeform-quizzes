@@ -363,17 +363,6 @@ if (!function_exists('tfq_render_field_order')) {
     }
 }
 
-if (!function_exists('tfq_render_field_center_on_click')) {
-    /**
-     * Render center_on_click field
-     * 
-     * @return void
-     */
-    function tfq_render_field_center_on_click() {
-        if (function_exists('_deprecated_function')) _deprecated_function(__FUNCTION__, TFQ_VERSION);
-        \MTI\TypeformQuizzes\Admin\SettingsPage::field_center_on_click();
-    }
-}
 
 // Layout & Grid Settings Fields
 if (!function_exists('tfq_render_field_max_width')) {

@@ -16,7 +16,6 @@
             colsTablet: 3,
             colsMobile: 2,
             gap: 20,
-            centerOnClick: true,
             paginationDotColor: '#cfcfcf',
             paginationActiveDotColor: '#111111',
             paginationDotSize: 8,
@@ -148,12 +147,6 @@
                 $container.find('.quiz-viewer-title').text(quizTitle);
                 $container.find('#quiz-iframe').attr('src', embedUrl);
                 
-                // Center on click if enabled
-                if (this.config.centerOnClick) {
-                    $('html, body').animate({
-                        scrollTop: $container.find('.quiz-viewer').offset().top - 100
-                    }, 500);
-                }
             }
         },
 
@@ -261,7 +254,6 @@
                 colsTablet: parseInt(sliderElement.data('cols-tablet')) || 3,
                 colsMobile: parseInt(sliderElement.data('cols-mobile')) || 2,
                 gap: parseInt(sliderElement.data('gap')) || 20,
-                centerOnClick: sliderElement.data('center-on-click') !== false,
                 paginationDotColor: sliderElement.data('pagination-dot-color') || '#cfcfcf',
                 paginationActiveDotColor: sliderElement.data('pagination-active-dot-color') || '#111111',
                 paginationDotSize: parseInt(sliderElement.data('pagination-dot-size')) || 8,

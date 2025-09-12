@@ -35,10 +35,9 @@ class SliderRenderer
      * @param int $cols_tablet Tablet columns
      * @param int $cols_mobile Mobile columns
      * @param int $gap Gap between items
-     * @param bool $center_on_click Center on click
      * @return string HTML output
      */
-    public static function render_quizzes_slider_html($quizzes, $slider_id, $atts, $max_width, $thumb_height, $cols_desktop, $cols_tablet, $cols_mobile, $gap, $center_on_click) {
+    public static function render_quizzes_slider_html($quizzes, $slider_id, $atts, $max_width, $thumb_height, $cols_desktop, $cols_tablet, $cols_mobile, $gap) {
         $border_radius = intval($atts['border_radius']);
         $title_color = \MTI\TypeformQuizzes\Support\Sanitize::hex_color($atts['title_color']);
         $title_hover_color = \MTI\TypeformQuizzes\Support\Sanitize::hex_color($atts['title_hover_color']);
@@ -73,7 +72,6 @@ class SliderRenderer
              data-cols-tablet="<?php echo $cols_tablet; ?>"
              data-cols-mobile="<?php echo $cols_mobile; ?>"
              data-gap="<?php echo $gap; ?>"
-             data-center-on-click="<?php echo $center_on_click ? 'true' : 'false'; ?>"
              data-pagination-dot-color="<?php echo esc_attr($pagination_dot_color); ?>"
              data-pagination-active-dot-color="<?php echo esc_attr($pagination_active_dot_color); ?>"
              data-pagination-dot-size="<?php echo $pagination_dot_size; ?>"

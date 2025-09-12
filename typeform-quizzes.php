@@ -42,9 +42,19 @@ define('TFQ_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('TFQ_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('TFQ_VERSION', filemtime(__FILE__) ?: '1.1.0');
 
-// ---- Phase 6 bootstrap (autoload + settings) ----
-if ( file_exists( __DIR__ . '/src/autoload.php' ) ) {
+// ---- Phase 9 bootstrap (Composer autoload + fallback) ----
+// Prefer Composer autoloader for better performance and PSR-4 compliance
+if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
+    require __DIR__ . '/vendor/autoload.php';
+} elseif ( file_exists( __DIR__ . '/src/autoload.php' ) ) {
+    // Fallback to custom autoloader for WordPress installs that can't run Composer
     require __DIR__ . '/src/autoload.php';
+} else {
+    // No autoloader found - show admin error and return early
+    add_action( 'admin_notices', function() {
+        echo '<div class="notice notice-error"><p><strong>Typeform Quizzes:</strong> Required autoloader files not found. Please reinstall the plugin.</p></div>';
+    });
+    return;
 }
 
 
@@ -53,6 +63,16 @@ require_once TFQ_PLUGIN_DIR . 'src/Support/Compat.php';
 
 // Boot the plugin
 MTI\TypeformQuizzes\Plugin::instance()->boot();
+
+/**
+ * Check if deprecation notices should be emitted
+ * 
+ * @since 1.1.0
+ * @return bool True if deprecation notices should be shown, false otherwise
+ */
+function tfq_should_emit_deprecations() {
+    return apply_filters( 'tfq_emit_deprecations', true );
+}
 
 /**
  * Typeform Quizzes Plugin Main Class
@@ -154,7 +174,7 @@ final class Typeform_Quizzes {
         // Back-compat alias (keep for one release)
         if (!shortcode_exists('typeform_quizzes')) {
             add_shortcode('typeform_quizzes', function($atts, $content = ''){
-                if (function_exists('_deprecated_function')) {
+                if (function_exists('_deprecated_function') && tfq_should_emit_deprecations()) {
                     _deprecated_function('typeform_quizzes shortcode', TFQ_VERSION);
                 }
                 return \MTI\TypeformQuizzes\Frontend\Shortcodes\TypeformQuizzesShortcode::render($atts, $content);
@@ -187,7 +207,6 @@ final class Typeform_Quizzes {
                         'cols_tablet' => $defaults['cols_tablet'] ?? 3,
                         'cols_mobile' => $defaults['cols_mobile'] ?? 2,
                         'gap' => $defaults['gap'] ?? 20,
-                        'center_on_click' => $defaults['center_on_click'] ?? true,
                         'border_radius' => $defaults['border_radius'] ?? 16,
                         'title_color' => $defaults['title_color'] ?? '#000000',
                         'title_hover_color' => $defaults['title_hover_color'] ?? '#777777',
@@ -229,7 +248,6 @@ final class Typeform_Quizzes {
                     $cols_mobile = min(max(intval($atts['cols_mobile']), 1), 4);
                     
                     $gap = min(max(intval($atts['gap']), 0), 100);
-                    $center_on_click = (bool) $atts['center_on_click'];
                     
                     // Validate order parameter
                     $valid_orders = ['menu_order', 'date', 'title', 'rand'];
@@ -249,7 +267,7 @@ final class Typeform_Quizzes {
                     \MTI\TypeformQuizzes\Frontend\Shortcodes\AssetManager::enqueue_slider_assets($atts);
 
                     // Render the slider
-                    return \MTI\TypeformQuizzes\Frontend\Shortcodes\SliderRenderer::render_quizzes_slider_html($quizzes, $slider_id, $atts, $max_width, $thumb_height, $cols_desktop, $cols_tablet, $cols_mobile, $gap, $center_on_click);
+                    return \MTI\TypeformQuizzes\Frontend\Shortcodes\SliderRenderer::render_quizzes_slider_html($quizzes, $slider_id, $atts, $max_width, $thumb_height, $cols_desktop, $cols_tablet, $cols_mobile, $gap);
 
                 } catch (Exception $e) {
                     \MTI\TypeformQuizzes\Frontend\Shortcodes\ErrorHandler::log_error('Quiz slider error: ' . $e->getMessage());
@@ -263,7 +281,7 @@ final class Typeform_Quizzes {
         // Frontend localization wrapper for progressive migration
         if (!function_exists('tfq_localize_frontend')) {
             function tfq_localize_frontend($atts = []) {
-                if (function_exists('_deprecated_function')) _deprecated_function(__FUNCTION__, TFQ_VERSION);
+                if (function_exists('_deprecated_function') && tfq_should_emit_deprecations()) _deprecated_function(__FUNCTION__, TFQ_VERSION);
                 return \MTI\TypeformQuizzes\Frontend\Assets::localize_frontend_data((array)$atts);
             }
         }
@@ -671,7 +689,6 @@ final class Typeform_Quizzes {
                     $sanitized[$key] = \MTI\TypeformQuizzes\Support\Sanitize::hex_color($value);
                     break;
                     
-                case 'center_on_click':
                 case 'darken_inactive_slides':
                     $sanitized[$key] = \MTI\TypeformQuizzes\Support\Sanitize::boolean($value);
                     break;
@@ -1014,7 +1031,6 @@ final class Typeform_Quizzes {
                 'cols_tablet' => 3,
                 'cols_mobile' => 2,
                 'gap' => 20,
-                'center_on_click' => true,
                 'border_radius' => 16,
                 'title_color' => '#000000',
                 'title_hover_color' => '#777777',
@@ -1211,7 +1227,7 @@ final class Typeform_Quizzes {
      * @return string Sanitized dimension value
      */
     private static function sanitize_css_dimension($value, $default = '100%') {
-        if (function_exists('_deprecated_function')) _deprecated_function(__FUNCTION__, TFQ_VERSION);
+        if (function_exists('_deprecated_function') && tfq_should_emit_deprecations()) _deprecated_function(__FUNCTION__, TFQ_VERSION);
         return \MTI\TypeformQuizzes\Support\Sanitize::css_dimension($value, $default);
     }
     
@@ -1263,7 +1279,7 @@ final class Typeform_Quizzes {
      * Sanitize hex color value
      */
     private static function sanitize_hex_color($color) {
-        if (function_exists('_deprecated_function')) _deprecated_function(__FUNCTION__, TFQ_VERSION);
+        if (function_exists('_deprecated_function') && tfq_should_emit_deprecations()) _deprecated_function(__FUNCTION__, TFQ_VERSION);
         return \MTI\TypeformQuizzes\Support\Sanitize::hex_color($color);
     }
 
@@ -1335,11 +1351,6 @@ final class Typeform_Quizzes {
             20
         );
         
-        // Center on click
-        $sanitized['center_on_click'] = \MTI\TypeformQuizzes\Support\Sanitize::boolean(
-            $input['center_on_click'] ?? true, 
-            true
-        );
         
         // Order
         $sanitized['order'] = \MTI\TypeformQuizzes\Support\Sanitize::order(
@@ -1621,7 +1632,7 @@ final class Typeform_Quizzes {
                     📚 Usage & Documentation
                 </h2>
                 <p style="margin: 0 0 20px 0; color: #666; font-size: 14px; line-height: 1.5;">
-                    Use the shortcode <code>[typeform_quizzes_slider max="20" max_width="1450" thumb_height="200" cols_desktop="6" cols_tablet="3" cols_mobile="2" gap="20" center_on_click="true" border_radius="16" title_color="#000000" title_hover_color="#777777" controls_spacing="56" controls_spacing_tablet="56" controls_bottom_spacing="20" arrow_border_radius="0" arrow_padding="3" arrow_width="35" arrow_height="35" arrow_bg_color="#111111" arrow_hover_bg_color="#000000" arrow_icon_color="#ffffff" arrow_icon_hover_color="#ffffff" arrow_icon_size="28" pagination_dot_color="#cfcfcf" pagination_active_dot_color="#111111" pagination_dot_gap="10" pagination_dot_size="8" active_slide_border_color="#0073aa" darken_inactive_slides="1" order="menu_order"]</code> in your posts or pages.
+                    Use the shortcode <code>[typeform_quizzes_slider max="20" max_width="1450" thumb_height="200" cols_desktop="6" cols_tablet="3" cols_mobile="2" gap="20" border_radius="16" title_color="#000000" title_hover_color="#777777" controls_spacing="56" controls_spacing_tablet="56" controls_bottom_spacing="20" arrow_border_radius="0" arrow_padding="3" arrow_width="35" arrow_height="35" arrow_bg_color="#111111" arrow_hover_bg_color="#000000" arrow_icon_color="#ffffff" arrow_icon_hover_color="#ffffff" arrow_icon_size="28" pagination_dot_color="#cfcfcf" pagination_active_dot_color="#111111" pagination_dot_gap="10" pagination_dot_size="8" active_slide_border_color="#0073aa" darken_inactive_slides="1" order="menu_order"]</code> in your posts or pages.
                 </p>
             
                 <div style="background: #fff; border: 1px solid #e1e5e9; border-radius: 6px; padding: 20px; margin: 20px 0;">
@@ -1637,7 +1648,6 @@ final class Typeform_Quizzes {
                         <li><strong>cols_tablet</strong> (optional): Number of quizzes visible per row on tablet (default: 3)</li>
                         <li><strong>cols_mobile</strong> (optional): Number of quizzes visible per row on mobile (default: 2)</li>
                         <li><strong>gap</strong> (optional): Gap between quiz items in pixels (default: 20)</li>
-                        <li><strong>center_on_click</strong> (optional): Whether to center the quiz viewer when clicked - "true" or "false" (default: true)</li>
                         <li><strong>border_radius</strong> (optional): Border radius for quiz thumbnails in pixels (default: 16)</li>
                         <li><strong>title_color</strong> (optional): Color of quiz titles in hex format (default: #000000)</li>
                         <li><strong>title_hover_color</strong> (optional): Color of quiz titles on hover in hex format (default: #777777)</li>
@@ -1681,8 +1691,6 @@ final class Typeform_Quizzes {
             <p><strong>Random order:</strong><br>
             <code>[typeform_quizzes_slider order="rand"]</code></p>
             
-            <p><strong>Disable quiz centering:</strong><br>
-            <code>[typeform_quizzes_slider center_on_click="false"]</code></p>
             
             <p><strong>Custom styling:</strong><br>
             <code>[typeform_quizzes_slider border_radius="20" title_color="#0066cc" title_hover_color="#003366"]</code></p>
@@ -2583,7 +2591,6 @@ final class Typeform_Quizzes {
      * - cols_tablet: Number of columns on tablet (default: 3)
      * - cols_mobile: Number of columns on mobile (default: 2)
      * - gap: Space between slides (default: 20px)
-     * - center_on_click: Center slide on click (default: true)
      * - border_radius: Border radius for thumbnails (default: 16px)
      * - title_color: Color of quiz titles (default: #000000)
      * - title_hover_color: Color of quiz titles on hover (default: #0073aa)
@@ -2598,7 +2605,7 @@ final class Typeform_Quizzes {
      * @example
      * [typeform_quizzes_slider]
      * [typeform_quizzes_slider max="12" cols_desktop="4" cols_tablet="2" cols_mobile="1"]
-     * [typeform_quizzes_slider order="date" center_on_click="false"]
+     * [typeform_quizzes_slider order="date"]
      * [typeform_quizzes_slider title_color="#ff0000" arrow_bg_color="#000000"]
      */
     public static function render_quizzes_slider($atts) {
@@ -2624,7 +2631,6 @@ final class Typeform_Quizzes {
                 'cols_tablet' => $defaults['cols_tablet'] ?? 3,
                 'cols_mobile' => $defaults['cols_mobile'] ?? 2,
                 'gap' => $defaults['gap'] ?? 20,
-                'center_on_click' => $defaults['center_on_click'] ?? true,
                 'border_radius' => $defaults['border_radius'] ?? 16,
                 'title_color' => $defaults['title_color'] ?? '#000000',
                 'title_hover_color' => $defaults['title_hover_color'] ?? '#777777',
@@ -2665,7 +2671,6 @@ final class Typeform_Quizzes {
             $cols_mobile = min(max(intval($atts['cols_mobile']), 1), 4);
             
             $gap = min(max(intval($atts['gap']), 0), 100);
-            $center_on_click = (bool) $atts['center_on_click'];
             
             // Validate order parameter
             $valid_orders = ['menu_order', 'date', 'title', 'rand'];
@@ -2685,7 +2690,7 @@ final class Typeform_Quizzes {
             self::enqueue_slider_assets($atts);
 
             // Render the slider
-            return self::render_quizzes_slider_html($quizzes, $slider_id, $atts, $max_width, $thumb_height, $cols_desktop, $cols_tablet, $cols_mobile, $gap, $center_on_click);
+            return self::render_quizzes_slider_html($quizzes, $slider_id, $atts, $max_width, $thumb_height, $cols_desktop, $cols_tablet, $cols_mobile, $gap);
 
         } catch (Exception $e) {
             self::log_error('Quiz slider error: ' . $e->getMessage());
@@ -3118,11 +3123,11 @@ final class Typeform_Quizzes {
         
         // Enqueue custom CSS file after swiper styles
         $custom_css_url = plugin_dir_url(__FILE__) . 'assets/css/typeform-quizzes-custom.css';
-        wp_enqueue_style('typeform-quizzes-custom', $custom_css_url, ['typeform-quizzes-swiper'], '1.0.0');
+        wp_enqueue_style('typeform-quizzes-custom', $custom_css_url, ['typeform-quizzes-swiper'], TFQ_VERSION);
         
         // Enqueue custom JavaScript file
         $custom_js_url = plugin_dir_url(__FILE__) . 'assets/js/typeform-quizzes.js';
-        wp_enqueue_script('typeform-quizzes-custom', $custom_js_url, ['jquery', 'typeform-quizzes-swiper'], '1.0.0', true);
+        wp_enqueue_script('typeform-quizzes-custom', $custom_js_url, ['jquery', 'typeform-quizzes-swiper'], TFQ_VERSION, true);
         
         // Add CSS variables for custom styles
         self::add_custom_css_variables($atts);
@@ -3270,7 +3275,7 @@ final class Typeform_Quizzes {
     /**
      * Render quizzes slider HTML
      */
-    public static function render_quizzes_slider_html($quizzes, $slider_id, $atts, $max_width, $thumb_height, $cols_desktop, $cols_tablet, $cols_mobile, $gap, $center_on_click) {
+    public static function render_quizzes_slider_html($quizzes, $slider_id, $atts, $max_width, $thumb_height, $cols_desktop, $cols_tablet, $cols_mobile, $gap) {
         $border_radius = intval($atts['border_radius']);
         $title_color = \MTI\TypeformQuizzes\Support\Sanitize::hex_color($atts['title_color']);
         $title_hover_color = \MTI\TypeformQuizzes\Support\Sanitize::hex_color($atts['title_hover_color']);
@@ -3305,7 +3310,6 @@ final class Typeform_Quizzes {
              data-cols-tablet="<?php echo $cols_tablet; ?>"
              data-cols-mobile="<?php echo $cols_mobile; ?>"
              data-gap="<?php echo $gap; ?>"
-             data-center-on-click="<?php echo $center_on_click ? 'true' : 'false'; ?>"
              data-pagination-dot-color="<?php echo esc_attr($pagination_dot_color); ?>"
              data-pagination-active-dot-color="<?php echo esc_attr($pagination_active_dot_color); ?>"
              data-pagination-dot-size="<?php echo $pagination_dot_size; ?>"

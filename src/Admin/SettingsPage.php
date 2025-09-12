@@ -90,13 +90,6 @@ final class SettingsPage
             'tfq_basic_config'
         );
 
-        add_settings_field(
-            'center_on_click',
-            __('Center Quiz on Click', 'typeform-quizzes'),
-            [__CLASS__, 'field_center_on_click'],
-            'typeform-quizzes-tools',
-            'tfq_basic_config'
-        );
 
         // Layout & Grid Settings Section
         add_settings_section(
@@ -373,16 +366,6 @@ final class SettingsPage
         <?php
     }
 
-    public static function field_center_on_click(): void {
-        $opts = \MTI\TypeformQuizzes\Services\Options::all();
-        $val = isset($opts['center_on_click']) ? $opts['center_on_click'] : true;
-        ?>
-        <input type="hidden" name="typeform_quizzes_defaults[center_on_click]" value="0">
-        <input type="checkbox" id="center_on_click" name="typeform_quizzes_defaults[center_on_click]" 
-               value="1" <?php checked($val, true); ?>>
-        <p class="description"><?php esc_html_e('Center the quiz viewer when a quiz is clicked (default: enabled)', 'typeform-quizzes'); ?></p>
-        <?php
-    }
 
     public static function field_max_width(): void {
         $opts = \MTI\TypeformQuizzes\Services\Options::all();

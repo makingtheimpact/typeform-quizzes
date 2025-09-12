@@ -54,7 +54,6 @@ final class ContextBuilder
             'cols_tablet' => $defaults['cols_tablet'] ?? 3,
             'cols_mobile' => $defaults['cols_mobile'] ?? 2,
             'gap' => $defaults['gap'] ?? 20,
-            'center_on_click' => $defaults['center_on_click'] ?? true,
             'border_radius' => $defaults['border_radius'] ?? 16,
             'title_color' => $defaults['title_color'] ?? '#000000',
             'title_hover_color' => $defaults['title_hover_color'] ?? '#777777',
@@ -96,7 +95,6 @@ final class ContextBuilder
         $cols_mobile = min(max(intval($atts['cols_mobile']), 1), 4);
         
         $gap = min(max(intval($atts['gap']), 0), 100);
-        $center_on_click = (bool) $atts['center_on_click'];
         
         // Validate order parameter
         $valid_orders = ['menu_order', 'date', 'title', 'rand'];
@@ -169,7 +167,6 @@ final class ContextBuilder
             'cols_tablet' => $cols_tablet,
             'cols_mobile' => $cols_mobile,
             'gap' => $gap,
-            'center_on_click' => $center_on_click,
             'border_radius' => $border_radius,
             'title_color' => $title_color,
             'title_hover_color' => $title_hover_color,
