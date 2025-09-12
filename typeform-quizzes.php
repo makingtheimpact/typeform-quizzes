@@ -121,14 +121,24 @@ final class Typeform_Quizzes {
         add_action('init', [__CLASS__, 'load_textdomain']);
         
         // Initialize plugin
-        add_action('init', [__CLASS__, 'register_post_type']);
-        add_action('add_meta_boxes', [__CLASS__, 'add_meta_boxes']);
-        add_action('save_post', [__CLASS__, 'save_meta_boxes'], 10, 1);
-        add_action('admin_menu', [__CLASS__, 'add_tools_page']);
+        if (!has_action('init', [__CLASS__, 'register_post_type'])) {
+            add_action('init', [__CLASS__, 'register_post_type']);
+        }
+        if (!has_action('add_meta_boxes', [__CLASS__, 'add_meta_boxes'])) {
+            add_action('add_meta_boxes', [__CLASS__, 'add_meta_boxes']);
+        }
+        if (!has_action('save_post', [__CLASS__, 'save_meta_boxes'])) {
+            add_action('save_post', [__CLASS__, 'save_meta_boxes'], 10, 1);
+        }
+        if (!has_action('admin_menu', [__CLASS__, 'add_tools_page'])) {
+            add_action('admin_menu', [__CLASS__, 'add_tools_page']);
+        }
         // moved to Frontend/Admin Assets
         
         // moved to Frontend/Admin Assets
-        add_shortcode('typeform_quiz', [__CLASS__, 'render_typeform_quiz']);
+        if (!shortcode_exists('typeform_quiz')) {
+            add_shortcode('typeform_quiz', [__CLASS__, 'render_typeform_quiz']);
+        }
         
         // Keep the original shortcode registration in place for backward compatibility
         if (!function_exists('typeform_quizzes_shortcode')) {
@@ -137,7 +147,19 @@ final class Typeform_Quizzes {
                 return \MTI\TypeformQuizzes\Frontend\Shortcodes\TypeformQuizzesShortcode::render($atts, $content);
             }
         }
-        add_shortcode('typeform_quizzes_slider', [\MTI\TypeformQuizzes\Frontend\Shortcodes\TypeformQuizzesShortcode::class, 'render']);
+        if (!shortcode_exists('typeform_quizzes_slider')) {
+            add_shortcode('typeform_quizzes_slider', [\MTI\TypeformQuizzes\Frontend\Shortcodes\TypeformQuizzesShortcode::class, 'render']);
+        }
+        
+        // Back-compat alias (keep for one release)
+        if (!shortcode_exists('typeform_quizzes')) {
+            add_shortcode('typeform_quizzes', function($atts, $content = ''){
+                if (function_exists('_deprecated_function')) {
+                    _deprecated_function('typeform_quizzes shortcode', TFQ_VERSION);
+                }
+                return \MTI\TypeformQuizzes\Frontend\Shortcodes\TypeformQuizzesShortcode::render($atts, $content);
+            });
+        }
         
         // Legacy bridge function for progressive migration
         if (!function_exists('typeform_quizzes_shortcode_legacy_body')) {
@@ -214,7 +236,7 @@ final class Typeform_Quizzes {
                     $order = in_array($atts['order'], $valid_orders) ? $atts['order'] : 'menu_order';
 
                     // Get quizzes
-                    $quizzes = \MTI\TypeformQuizzes\Frontend\Shortcodes\QuizRetriever::get_quizzes($max_quizzes, $order);
+                    $quizzes = \MTI\TypeformQuizzes\Frontend\Repository\QuizRepository::get_quizzes($max_quizzes, $order);
                     
                     if (empty($quizzes)) {
                         return \MTI\TypeformQuizzes\Frontend\Shortcodes\ErrorHandler::render_error('No quizzes found. Please add some Typeform Quizzes first.');
@@ -237,12 +259,6 @@ final class Typeform_Quizzes {
         }
         
         // Context builder for progressive migration
-        if (!function_exists('tfq_build_shortcode_context')) {
-            function tfq_build_shortcode_context($atts, $content = ''): array {
-                if (function_exists('_deprecated_function')) _deprecated_function(__FUNCTION__, TFQ_VERSION);
-                return \MTI\TypeformQuizzes\Frontend\Shortcodes\ContextBuilder::build((array)$atts, (string)$content);
-            }
-        }
         
         // Frontend localization wrapper for progressive migration
         if (!function_exists('tfq_localize_frontend')) {
@@ -405,13 +421,23 @@ final class Typeform_Quizzes {
         register_post_type('typeform_quiz', $args);
         
         // Add custom columns to the admin list view
-        add_filter('manage_typeform_quiz_posts_columns', [__CLASS__, 'add_admin_columns']);
-        add_action('manage_typeform_quiz_posts_custom_column', [__CLASS__, 'populate_admin_columns'], 10, 2);
-        add_filter('manage_edit-typeform_quiz_sortable_columns', [__CLASS__, 'make_columns_sortable']);
+        if (!has_filter('manage_typeform_quiz_posts_columns', [__CLASS__, 'add_admin_columns'])) {
+            add_filter('manage_typeform_quiz_posts_columns', [__CLASS__, 'add_admin_columns']);
+        }
+        if (!has_action('manage_typeform_quiz_posts_custom_column', [__CLASS__, 'populate_admin_columns'])) {
+            add_action('manage_typeform_quiz_posts_custom_column', [__CLASS__, 'populate_admin_columns'], 10, 2);
+        }
+        if (!has_filter('manage_edit-typeform_quiz_sortable_columns', [__CLASS__, 'make_columns_sortable'])) {
+            add_filter('manage_edit-typeform_quiz_sortable_columns', [__CLASS__, 'make_columns_sortable']);
+        }
         
         // Add reorder functionality
-        add_action('restrict_manage_posts', [__CLASS__, 'add_reorder_button']);
-        add_action('admin_footer', [__CLASS__, 'add_reorder_modal']);
+        if (!has_action('restrict_manage_posts', [__CLASS__, 'add_reorder_button'])) {
+            add_action('restrict_manage_posts', [__CLASS__, 'add_reorder_button']);
+        }
+        if (!has_action('admin_footer', [__CLASS__, 'add_reorder_modal'])) {
+            add_action('admin_footer', [__CLASS__, 'add_reorder_modal']);
+        }
         // AJAX handlers are now managed by the class-based system
         
         // Migrate existing order data on admin init

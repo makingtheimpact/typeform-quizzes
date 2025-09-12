@@ -340,7 +340,7 @@ final class QuizRepository
      * @param string $url URL to validate
      * @return bool True if valid, false otherwise
      */
-    private static function is_valid_typeform_url(string $url): bool
+    public static function is_valid_typeform_url(string $url): bool
     {
         if (empty($url)) {
             return false;

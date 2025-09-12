@@ -102,8 +102,8 @@ final class ContextBuilder
         $valid_orders = ['menu_order', 'date', 'title', 'rand'];
         $order = in_array($atts['order'], $valid_orders) ? $atts['order'] : 'menu_order';
 
-        // Get quizzes using QuizRetriever
-        $quizzes = QuizRetriever::get_quizzes($max_quizzes, $order);
+        // Get quizzes using QuizRepository
+        $quizzes = \MTI\TypeformQuizzes\Frontend\Repository\QuizRepository::get_quizzes($max_quizzes, $order);
         
         if (empty($quizzes)) {
             // Return error context instead of empty quizzes

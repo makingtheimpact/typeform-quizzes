@@ -237,4 +237,49 @@ final class Sanitize
         
         return sanitize_url($value);
     }
+
+    /**
+     * Sanitize color value (alias for hex_color)
+     * 
+     * @param mixed $value Color value to sanitize
+     * @return string Sanitized hex color
+     */
+    public static function color($value): string
+    {
+        return self::hex_color($value);
+    }
+
+    /**
+     * Sanitize integer value with min/max bounds
+     * 
+     * @param mixed $value Value to sanitize
+     * @param int $min Minimum allowed value
+     * @param int $max Maximum allowed value
+     * @return int Sanitized integer
+     */
+    public static function intval($value, int $min = PHP_INT_MIN, int $max = PHP_INT_MAX): int
+    {
+        $int_value = intval($value);
+        
+        if ($int_value < $min) {
+            return $min;
+        }
+        
+        if ($int_value > $max) {
+            return $max;
+        }
+        
+        return $int_value;
+    }
+
+    /**
+     * Sanitize boolean value (alias for boolean)
+     * 
+     * @param mixed $value Value to sanitize
+     * @return bool Sanitized boolean
+     */
+    public static function boolval($value): bool
+    {
+        return self::boolean($value);
+    }
 }

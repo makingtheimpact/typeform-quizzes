@@ -159,6 +159,89 @@ if (!function_exists('tfq_sanitize_order')) {
     }
 }
 
+if (!function_exists('tfq_sanitize_color')) {
+    /**
+     * Sanitize color value
+     * 
+     * @param mixed $value Color value to sanitize
+     * @return string Sanitized hex color
+     */
+    function tfq_sanitize_color($value) {
+        if (function_exists('_deprecated_function')) _deprecated_function(__FUNCTION__, TFQ_VERSION);
+        return \MTI\TypeformQuizzes\Support\Sanitize::color($value);
+    }
+}
+
+if (!function_exists('tfq_sanitize_intval')) {
+    /**
+     * Sanitize integer value with min/max bounds
+     * 
+     * @param mixed $value Value to sanitize
+     * @param int $min Minimum allowed value
+     * @param int $max Maximum allowed value
+     * @return int Sanitized integer
+     */
+    function tfq_sanitize_intval($value, $min = PHP_INT_MIN, $max = PHP_INT_MAX) {
+        if (function_exists('_deprecated_function')) _deprecated_function(__FUNCTION__, TFQ_VERSION);
+        return \MTI\TypeformQuizzes\Support\Sanitize::intval($value, $min, $max);
+    }
+}
+
+if (!function_exists('tfq_sanitize_boolval')) {
+    /**
+     * Sanitize boolean value
+     * 
+     * @param mixed $value Value to sanitize
+     * @return bool Sanitized boolean
+     */
+    function tfq_sanitize_boolval($value) {
+        if (function_exists('_deprecated_function')) _deprecated_function(__FUNCTION__, TFQ_VERSION);
+        return \MTI\TypeformQuizzes\Support\Sanitize::boolval($value);
+    }
+}
+
+if (!function_exists('tfq_sanitize_int')) {
+    /**
+     * Sanitize integer value (alias for tfq_sanitize_intval)
+     * 
+     * @param mixed $value Value to sanitize
+     * @param int $min Minimum allowed value
+     * @param int $max Maximum allowed value
+     * @return int Sanitized integer
+     */
+    function tfq_sanitize_int($value, $min = PHP_INT_MIN, $max = PHP_INT_MAX) {
+        if (function_exists('_deprecated_function')) _deprecated_function(__FUNCTION__, TFQ_VERSION);
+        return \MTI\TypeformQuizzes\Support\Sanitize::intval($value, $min, $max);
+    }
+}
+
+if (!function_exists('tfq_sanitize_bool')) {
+    /**
+     * Sanitize boolean value (alias for tfq_sanitize_boolval)
+     * 
+     * @param mixed $value Value to sanitize
+     * @return bool Sanitized boolean
+     */
+    function tfq_sanitize_bool($value) {
+        if (function_exists('_deprecated_function')) _deprecated_function(__FUNCTION__, TFQ_VERSION);
+        return \MTI\TypeformQuizzes\Support\Sanitize::boolval($value);
+    }
+}
+
+if (!function_exists('tfq_build_shortcode_context')) {
+    /**
+     * Build shortcode context
+     * 
+     * @param array $atts Shortcode attributes
+     * @param string $content Shortcode content
+     * @return array Context array
+     */
+    function tfq_build_shortcode_context($atts, $content = '') {
+        if (function_exists('_deprecated_function')) _deprecated_function(__FUNCTION__, TFQ_VERSION);
+        return \MTI\TypeformQuizzes\Frontend\Shortcodes\ContextBuilder::build((array)$atts, (string)$content);
+    }
+}
+
 // AJAX compatibility functions
 if (!function_exists('tfq_ajax_reorder')) {
     /**
@@ -222,7 +305,7 @@ if (!function_exists('tfq_is_valid_typeform_url')) {
      */
     function tfq_is_valid_typeform_url($url) {
         if (function_exists('_deprecated_function')) _deprecated_function(__FUNCTION__, TFQ_VERSION);
-        return \MTI\TypeformQuizzes\Frontend\Shortcodes\QuizRetriever::is_valid_typeform_url($url);
+        return \MTI\TypeformQuizzes\Frontend\Repository\QuizRepository::is_valid_typeform_url($url);
     }
 }
 
