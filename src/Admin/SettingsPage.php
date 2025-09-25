@@ -261,6 +261,27 @@ final class SettingsPage
                 <p style="margin: 0 0 20px 0; color: #666; font-size: 14px; line-height: 1.5;">
                     Use the shortcode <code>[typeform_quizzes_slider max="20" max_width="1450" thumb_height="200" cols_desktop="6" cols_tablet="3" cols_mobile="2" gap="20" border_radius="16" title_color="#000000" title_hover_color="#777777" controls_spacing="56" controls_spacing_tablet="56" controls_bottom_spacing="20" arrow_border_radius="0" arrow_padding="3" arrow_width="35" arrow_height="35" arrow_bg_color="#111111" arrow_hover_bg_color="#000000" arrow_icon_color="#ffffff" arrow_icon_hover_color="#ffffff" arrow_icon_size="28" pagination_dot_color="#cfcfcf" pagination_active_dot_color="#111111" pagination_dot_gap="10" pagination_dot_size="8" active_slide_border_color="#0073aa" darken_inactive_slides="1" order="menu_order"]</code> in your posts or pages.
                 </p>
+                
+                <div style="background: #e7f3ff; border: 1px solid #b3d9ff; border-radius: 6px; padding: 20px; margin: 20px 0;">
+                    <h3 style="margin: 0 0 15px 0; color: #0073aa; font-size: 18px; border-bottom: 2px solid #b3d9ff; padding-bottom: 10px;">
+                        🎯 Separate Main Viewer Window
+                    </h3>
+                    <p style="margin: 0 0 15px 0; color: #333; font-size: 14px; line-height: 1.5;">
+                        <strong>New Feature:</strong> You can now separate the main viewer window from the quiz slider for more flexible layouts. When enabled, use the new <code>[typeform_quizzes_viewer]</code> shortcode to place the main viewer anywhere on your page.
+                    </p>
+                    <p style="margin: 0 0 15px 0; color: #333; font-size: 14px; line-height: 1.5;">
+                        <strong>How to use:</strong>
+                    </p>
+                    <ul style="margin: 0 0 15px 0; padding-left: 20px; color: #333; line-height: 1.6;">
+                        <li>Enable "Separate Main Viewer Window" in the Basic Configuration section above</li>
+                        <li>Use <code>[typeform_quizzes_slider]</code> to display only the quiz thumbnails and navigation</li>
+                        <li>Use <code>[typeform_quizzes_viewer]</code> to display the main viewer window separately</li>
+                        <li>The viewer will automatically load the first quiz in your collection</li>
+                    </ul>
+                    <p style="margin: 0; color: #666; font-size: 13px; font-style: italic;">
+                        This allows you to create custom layouts where the viewer and slider are positioned independently on your page.
+                    </p>
+                </div>
             
                 <div style="background: #fff; border: 1px solid #e1e5e9; border-radius: 6px; padding: 20px; margin: 20px 0;">
                     <h3 style="margin: 0 0 15px 0; color: #0073aa; font-size: 18px; border-bottom: 2px solid #e1e5e9; padding-bottom: 10px;">
@@ -296,6 +317,17 @@ final class SettingsPage
                         <li><strong>pagination_dot_size</strong> (optional): Size of pagination dots in pixels (default: 8)</li>
                         <li><strong>active_slide_border_color</strong> (optional): Border color for the active/selected quiz slide in hex format (default: #0073aa)</li>
                         <li><strong>darken_inactive_slides</strong> (optional): Whether to apply a dark overlay to inactive quiz slides (1 = enabled, 0 = disabled, default: 1)</li>
+                        <li><strong>show_viewer_title</strong> (optional): Whether to show quiz titles above the viewer window (1 = enabled, 0 = disabled, default: 1)</li>
+                    </ul>
+                    
+                    <h4 style="margin: 20px 0 15px 0; color: #0073aa; font-size: 16px; border-bottom: 2px solid #e1e5e9; padding-bottom: 8px;">
+                        [typeform_quizzes_viewer] Parameters
+                    </h4>
+                    <ul style="margin: 0; padding-left: 20px; color: #333; line-height: 1.6;">
+                        <li><strong>height</strong> (optional): Height of the viewer iframe in pixels or percentage (default: 600px)</li>
+                        <li><strong>width</strong> (optional): Width of the viewer container in pixels or percentage (default: 100%)</li>
+                        <li><strong>quiz_id</strong> (optional): Specific quiz ID to display. If not provided, shows the first quiz in the collection</li>
+                        <li><strong>show_title</strong> (optional): Whether to show the quiz title above the viewer (true/false, default: true)</li>
                     </ul>
                 </div>
 
@@ -340,11 +372,20 @@ final class SettingsPage
             <p><strong>Disable darkening of inactive slides:</strong><br>
             <code>[typeform_quizzes_slider darken_inactive_slides="0"]</code></p>
             
+            <p><strong>Hide quiz titles in viewer:</strong><br>
+            <code>[typeform_quizzes_slider show_viewer_title="0"]</code></p>
+            
             <p><strong>Individual quiz display:</strong><br>
             <code>[typeform_quiz id="123" width="100%" height="500px"]</code></p>
             
             <p><strong>Individual quiz by URL:</strong><br>
             <code>[typeform_quiz url="https://form.typeform.com/to/abc123" width="100%" height="500px"]</code></p>
+            
+            <p><strong>Separate main viewer window:</strong><br>
+            <code>[typeform_quizzes_viewer height="600px" width="100%" show_title="true"]</code></p>
+            
+            <p><strong>Separate viewer with specific quiz:</strong><br>
+            <code>[typeform_quizzes_viewer quiz_id="123" height="500px" show_title="false"]</code></p>
             
             <p><strong>Note:</strong> The slider displays quizzes in a single row with pagination controls. Use the arrow buttons or dots to navigate through all quizzes. Click on a quiz to load it in the viewer below.</p>
                 </div>
@@ -423,6 +464,22 @@ final class SettingsPage
             'order',
             __('Quiz Order', 'typeform-quizzes'),
             [__CLASS__, 'field_order'],
+            'typeform-quizzes-tools',
+            'tfq_basic_config'
+        );
+
+        add_settings_field(
+            'separate_viewer',
+            __('Separate Main Viewer Window', 'typeform-quizzes'),
+            [__CLASS__, 'field_separate_viewer'],
+            'typeform-quizzes-tools',
+            'tfq_basic_config'
+        );
+
+        add_settings_field(
+            'show_viewer_title',
+            __('Show Quiz Title in Viewer', 'typeform-quizzes'),
+            [__CLASS__, 'field_show_viewer_title'],
             'typeform-quizzes-tools',
             'tfq_basic_config'
         );
@@ -700,6 +757,28 @@ final class SettingsPage
             <option value="rand" <?php selected($val, 'rand'); ?>><?php esc_html_e('Random', 'typeform-quizzes'); ?></option>
         </select>
         <p class="description"><?php esc_html_e('How quizzes should be ordered in the slider', 'typeform-quizzes'); ?></p>
+        <?php
+    }
+
+    public static function field_separate_viewer(): void {
+        $opts = \MTI\TypeformQuizzes\Services\Options::all();
+        $val = isset($opts['separate_viewer']) ? $opts['separate_viewer'] : false;
+        ?>
+        <input type="hidden" name="typeform_quizzes_defaults[separate_viewer]" value="0">
+        <input type="checkbox" id="separate_viewer" name="typeform_quizzes_defaults[separate_viewer]" 
+               value="1" <?php checked($val, 1); ?>>
+        <p class="description"><?php esc_html_e('Enable separate main viewer window shortcode [typeform_quizzes_viewer]. When enabled, the main viewer will not appear with the slider and must be placed separately using the new shortcode.', 'typeform-quizzes'); ?></p>
+        <?php
+    }
+
+    public static function field_show_viewer_title(): void {
+        $opts = \MTI\TypeformQuizzes\Services\Options::all();
+        $val = isset($opts['show_viewer_title']) ? $opts['show_viewer_title'] : true;
+        ?>
+        <input type="hidden" name="typeform_quizzes_defaults[show_viewer_title]" value="0">
+        <input type="checkbox" id="show_viewer_title" name="typeform_quizzes_defaults[show_viewer_title]" 
+               value="1" <?php checked($val, 1); ?>>
+        <p class="description"><?php esc_html_e('Show quiz title above the viewer window. This applies to both integrated and separate viewers.', 'typeform-quizzes'); ?></p>
         <?php
     }
 
@@ -1491,6 +1570,14 @@ final class SettingsPage
 
         $sanitized['order'] = \MTI\TypeformQuizzes\Support\Sanitize::order(
             $input['order'] ?? 'menu_order'
+        );
+
+        $sanitized['separate_viewer'] = \MTI\TypeformQuizzes\Support\Sanitize::boolean(
+            $input['separate_viewer'] ?? false
+        );
+
+        $sanitized['show_viewer_title'] = \MTI\TypeformQuizzes\Support\Sanitize::boolean(
+            $input['show_viewer_title'] ?? true
         );
 
         // Layout settings

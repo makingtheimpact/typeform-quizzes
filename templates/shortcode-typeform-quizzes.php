@@ -32,6 +32,8 @@ $pagination_dot_gap = $ctx['pagination_dot_gap'];
 $pagination_dot_size = $ctx['pagination_dot_size'];
 $active_slide_border_color = $ctx['active_slide_border_color'];
 $darken_inactive_slides = $ctx['darken_inactive_slides'];
+$separate_viewer = $ctx['separate_viewer'];
+$show_viewer_title = $ctx['show_viewer_title'];
 $thumb_height_css = $ctx['thumb_height_css'];
 ?>
 <div class="typeform-quizzes-slider-container" 
@@ -44,20 +46,17 @@ $thumb_height_css = $ctx['thumb_height_css'];
      data-pagination-active-dot-color="<?php echo esc_attr($pagination_active_dot_color); ?>"
      data-pagination-dot-size="<?php echo $pagination_dot_size; ?>"
      data-pagination-dot-gap="<?php echo $pagination_dot_gap; ?>">
+    <?php if (!$separate_viewer): ?>
     <!-- Quiz viewer - now at the top -->
     <div class="quiz-viewer">
+        <?php if ($show_viewer_title): ?>
         <div class="quiz-viewer-header">
             <h2 class="quiz-viewer-title"><?php echo esc_html($quizzes[0]['title']); ?></h2>
             <button class="quiz-viewer-close">×</button>
         </div>
+        <?php endif; ?>
         <div class="quiz-viewer-content">
             <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px;"></div>
-            <?php if (\MTI\TypeformQuizzes\Frontend\Shortcodes\SliderRenderer::is_local_development()): ?>
-            <div id="dev-notice" style="background: #fff3cd; border: 1px solid #ffeaa7; color: #856404; padding: 10px; margin-bottom: 10px; border-radius: 4px; font-size: 14px;">
-                <strong>Development Notice:</strong> Typeform CSP may block embedding in local development. 
-                <a href="<?php echo esc_url($quizzes[0]['url']); ?>" target="_blank" style="color: #0073aa; text-decoration: underline;">Click here to open in new tab</a>
-            </div>
-            <?php endif; ?>
             <iframe id="quiz-iframe" 
                     src="<?php echo esc_url(\MTI\TypeformQuizzes\Frontend\Shortcodes\SliderRenderer::get_embed_url($quizzes[0]['url'])); ?>" 
                     width="100%" 
@@ -93,6 +92,7 @@ $thumb_height_css = $ctx['thumb_height_css'];
             </button>
         </div>
     </div>
+    <?php endif; ?>
     
     <div class="typeform-quizzes-slider swiper" id="<?php echo esc_attr($slider_id); ?>">
         <div class="swiper-wrapper">

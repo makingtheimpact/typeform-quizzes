@@ -95,9 +95,7 @@ class Dots
                         },
                         on: {
                             init: function() {
-                                console.log('Swiper initialized with', this.slides.length, 'slides');
-                                console.log('Slides per group:', this.params.slidesPerGroup);
-                                console.log('Expected pages:', Math.ceil(this.slides.length / this.params.slidesPerGroup));
+                                // Swiper initialized
                             }
                         }
                     });

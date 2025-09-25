@@ -28,8 +28,7 @@ class AssetManager
      * @return void
      */
     public static function enqueue_slider_assets($atts = []) {
-        // This functionality has been moved to Frontend/Assets.php
-        // This method is kept for compatibility during migration
-        return;
+        // Delegate to the main Assets class
+        \MTI\TypeformQuizzes\Frontend\Assets::enqueue_slider_assets($atts);
     }
 }

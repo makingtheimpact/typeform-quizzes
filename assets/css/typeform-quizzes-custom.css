@@ -47,7 +47,6 @@
 .typeform-quizzes-slider .quiz-thumbnail {
     transition: all 0.3s ease;
     height: var(--tfq-thumb-height) !important;
-    min-height: 200px;
     position: relative;
     border-radius: var(--tfq-border-radius);
     overflow: hidden;
@@ -118,7 +117,6 @@
 
 .typeform-quizzes-slider .swiper-slide.active .quiz-thumbnail {
     border: 3px solid var(--tfq-active-slide-border-color);
-    box-shadow: 0 0 10px var(--tfq-active-slide-border-color)30;
 }
 
 .typeform-quizzes-slider .swiper-slide.active .quiz-thumbnail::before {
@@ -290,6 +288,56 @@
     margin-bottom: 30px;
 }
 
+/* Separate viewer container styles */
+.typeform-quiz-viewer-container {
+    margin-bottom: 30px;
+}
+
+.typeform-quiz-viewer-container .quiz-viewer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.typeform-quiz-viewer-container .quiz-viewer-title {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.typeform-quiz-viewer-container .quiz-viewer-content {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    position: relative;
+    background: #f8f9fa;
+}
+
+.typeform-quiz-viewer-container .quiz-viewer-expand {
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+    width: 40px;
+    height: 40px;
+    background: rgba(0, 0, 0, 0.7);
+    border: none;
+    border-radius: 50%;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+.typeform-quiz-viewer-container .quiz-viewer-expand:hover {
+    background: rgba(0, 0, 0, 0.9) !important;
+    transform: scale(1.1);
+}
+
 .typeform-quizzes-slider-container .quiz-viewer-header {
     display: flex;
     justify-content: space-between;
@@ -413,6 +461,65 @@
     content: "⛷"; /* Compress symbol */
 }
 
+/* Separate viewer fullscreen styles */
+.typeform-quiz-viewer-container.quiz-viewer-fullscreen {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 999999 !important; /* Increased to avoid conflicts with other plugins */
+    background: #f8f9fa !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+.typeform-quiz-viewer-container.quiz-viewer-fullscreen .quiz-viewer-content {
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+.typeform-quiz-viewer-container.quiz-viewer-fullscreen #quiz-iframe {
+    width: 100% !important;
+    height: calc(100vh - 80px) !important;
+    min-height: calc(100vh - 80px) !important;
+}
+
+.typeform-quiz-viewer-container.quiz-viewer-fullscreen .quiz-viewer-header {
+    padding: 20px !important;
+    background: white !important;
+    border-bottom: 1px solid #e0e0e0 !important;
+    margin-bottom: 0 !important;
+}
+
+.typeform-quiz-viewer-container.quiz-viewer-fullscreen .quiz-viewer-expand {
+    position: fixed !important;
+    bottom: 20px !important;
+    right: 20px !important;
+    z-index: 1000000 !important; /* Increased to avoid conflicts with other plugins */
+}
+
+.typeform-quiz-viewer-container.quiz-viewer-fullscreen .quiz-viewer-expand i::before {
+    content: "\f066"; /* fa-compress icon */
+}
+
+/* Fallback for when Font Awesome is not available */
+.typeform-quiz-viewer-container .quiz-viewer-expand.fa-fallback i {
+    display: none;
+}
+
+.typeform-quiz-viewer-container .quiz-viewer-expand.fa-fallback::before {
+    content: "⛶"; /* Expand symbol */
+    font-size: 16px;
+}
+
+.typeform-quiz-viewer-container.quiz-viewer-fullscreen .quiz-viewer-expand.fa-fallback::before {
+    content: "⛷"; /* Compress symbol */
+}
+
 /* ==========================================================================
    RESPONSIVE STYLES
    ========================================================================== */
@@ -498,6 +605,15 @@
     
     /* Mobile fullscreen button positioning */
     .quiz-viewer-fullscreen .quiz-viewer-expand {
+        bottom: 15px !important;
+        right: 15px !important;
+        width: 45px !important;
+        height: 45px !important;
+        font-size: 18px !important;
+    }
+    
+    /* Mobile fullscreen button positioning for separate viewers */
+    .typeform-quiz-viewer-container.quiz-viewer-fullscreen .quiz-viewer-expand {
         bottom: 15px !important;
         right: 15px !important;
         width: 45px !important;

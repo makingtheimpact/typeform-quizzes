@@ -81,23 +81,23 @@ class Assets
      */
     public static function get_reorder_script()
     {
-        $ajax_url = admin_url('admin-ajax.php');
-        $nonce = wp_create_nonce('tfq_reorder');
-        $debug_mode = defined('WP_DEBUG') && WP_DEBUG;
-        
         return "
         // Ensure jQuery is available and handle conflicts
         (function($) {
+            const TFQ_DEBUG_MODE = " . wp_json_encode( defined('WP_DEBUG') && WP_DEBUG ) . ";
+            const TFQ_AJAX_URL = " . wp_json_encode( admin_url('admin-ajax.php') ) . ";
+            const TFQ_NONCE = " . wp_json_encode( wp_create_nonce('tfq_reorder') ) . ";
+
             if (typeof $ === 'undefined') {
                 console.error('Typeform Quizzes: jQuery not available, falling back to vanilla JS');
                 return;
             }
             
-            console.log('Typeform Quizzes: Reorder script loaded successfully');
+            // Reorder script loaded
             
             // Prevent duplicate initialization
             if (window.typeformQuizzesReorderInitialized) {
-                console.log('Typeform Quizzes: Reorder already initialized, skipping');
+                // Reorder already initialized, skipping
                 return;
             }
             window.typeformQuizzesReorderInitialized = true;
@@ -105,7 +105,7 @@ class Assets
             $(document).ready(function() {
                 // Only run on the correct admin page
                 if (!$('#typeform-quizzes-reorder-modal').length) {
-                    console.log('Typeform Quizzes: Reorder modal not found, skipping initialization');
+                    // Reorder modal not found, skipping initialization
                     return;
                 }
                 
@@ -158,10 +158,10 @@ class Assets
                 function loadQuizzes() {
                     reorderList.html('<div style=\"text-align: center; padding: 50px; color: #999;\"><span class=\"dashicons dashicons-update\" style=\"font-size: 24px; margin-right: 10px; animation: spin 1s linear infinite;\"></span>Loading quizzes...</div>');
                     
-                    $.post('$ajax_url', {
+                    $.post(TFQ_AJAX_URL, {
                         action: 'tfq_reorder',
                         action_type: 'get_quizzes',
-                        nonce: '$nonce'
+                        nonce: TFQ_NONCE
                     }, function(response) {
                         if (response.success) {
                             if (response.data && response.data.length > 0) {
@@ -238,22 +238,18 @@ class Assets
                         .css('background', '#0073aa');
                     
                     // Add debugging for staging
-                    if ($debug_mode) {
-                        console.log('Typeform Quizzes: Sending reorder request', {
-                            ajax_url: '$ajax_url',
-                            order_data: orderData,
-                            nonce: '$nonce'
-                        });
+                    if (TFQ_DEBUG_MODE) {
+                        // Sending reorder request
                     }
                     
-                    $.post('$ajax_url', {
+                    $.post(TFQ_AJAX_URL, {
                         action: 'tfq_reorder',
                         action_type: 'save_order',
                         order_data: JSON.stringify(orderData),
-                        nonce: '$nonce'
+                        nonce: TFQ_NONCE
                     }, function(response) {
-                        if ($debug_mode) {
-                            console.log('Typeform Quizzes: AJAX Response', response);
+                        if (TFQ_DEBUG_MODE) {
+                            // AJAX Response received
                         }
                         if (response.success) {
                             // Show success state
@@ -268,11 +264,11 @@ class Assets
                             if (typeof wp !== 'undefined' && wp.ajax) {
                                 // Clear object cache if available
                                 wp.ajax.post('tfq_clear_cache', {
-                                    nonce: '$nonce'
+                                    nonce: TFQ_NONCE
                                 }).done(function() {
-                                    console.log('Typeform Quizzes: Cache cleared successfully');
+                                    // Cache cleared successfully
                                 }).fail(function() {
-                                    console.log('Typeform Quizzes: Cache clear failed or not available');
+                                    // Cache clear failed or not available
                                 });
                             }
                             

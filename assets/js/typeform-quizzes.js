@@ -51,10 +51,23 @@
                 self.toggleFullscreen($(this));
             });
 
+            // Handle fullscreen toggle for separate viewers
+            $(document).on('click', '.typeform-quiz-viewer-container .quiz-viewer-expand', function(e) {
+                e.preventDefault();
+                self.toggleFullscreen($(this));
+            });
+
             // Handle escape key to exit fullscreen - scoped to plugin
             $(document).on('keydown', function(e) {
-                if (e.key === 'Escape' && $('.typeform-quizzes-slider-container .quiz-viewer').hasClass('quiz-viewer-fullscreen')) {
-                    $('.typeform-quizzes-slider-container .quiz-viewer-expand').click();
+                if (e.key === 'Escape') {
+                    // Check for integrated viewer fullscreen
+                    if ($('.typeform-quizzes-slider-container .quiz-viewer').hasClass('quiz-viewer-fullscreen')) {
+                        $('.typeform-quizzes-slider-container .quiz-viewer-expand').click();
+                    }
+                    // Check for separate viewer fullscreen
+                    else if ($('.typeform-quiz-viewer-container').hasClass('quiz-viewer-fullscreen')) {
+                        $('.typeform-quiz-viewer-container .quiz-viewer-expand').click();
+                    }
                 }
             });
         },
@@ -113,9 +126,7 @@
                     },
                     on: {
                         init: function() {
-                            console.log('Swiper initialized with', this.slides.length, 'slides');
-                            console.log('Slides per group:', this.params.slidesPerGroup);
-                            console.log('Expected pages:', Math.ceil(this.slides.length / this.params.slidesPerGroup));
+                            // Swiper initialized
                         }
                     }
                 });
@@ -142,23 +153,67 @@
                     embedUrl += '&embed=true&embed-hide-headers=true&embed-hide-footer=true';
                 }
                 
-                // Update quiz viewer in this container
+                // Update quiz viewer in this container (if it exists)
                 const $container = $slide.closest('.typeform-quizzes-slider-container');
-                $container.find('.quiz-viewer-title').text(quizTitle);
-                $container.find('#quiz-iframe').attr('src', embedUrl);
+                const $localViewer = $container.find('.quiz-viewer');
+                if ($localViewer.length) {
+                    $container.find('.quiz-viewer-title').text(quizTitle);
+                    $container.find('#quiz-iframe').attr('src', embedUrl);
+                }
+                
+                // Also update any separate viewers on the page
+                this.updateSeparateViewers(quizUrl, quizTitle, embedUrl);
                 
             }
         },
 
+        // Update separate viewers on the page
+        updateSeparateViewers: function(quizUrl, quizTitle, embedUrl) {
+            // Find all separate viewer containers
+            $('.typeform-quiz-viewer-container').each(function() {
+                const $viewer = $(this);
+                
+                // Update title if it exists and is visible
+                const $title = $viewer.find('.quiz-viewer-title');
+                if ($title.length && $title.is(':visible')) {
+                    $title.text(quizTitle);
+                }
+                
+                // Update iframe
+                const $iframe = $viewer.find('#quiz-iframe');
+                if ($iframe.length) {
+                    $iframe.attr('src', embedUrl);
+                }
+                
+                // Update dev notice link if it exists
+                const $devNotice = $viewer.find('#dev-notice a');
+                if ($devNotice.length) {
+                    $devNotice.attr('href', quizUrl);
+                }
+            });
+        },
+
         // Close quiz viewer
         closeQuizViewer: function() {
+            // Close integrated viewers
             $('.typeform-quizzes-slider-container .quiz-viewer').hide();
             $('.typeform-quizzes-slider-container #quiz-iframe').attr('src', '');
+            
+            // Also close separate viewers
+            $('.typeform-quiz-viewer-container').hide();
+            $('.typeform-quiz-viewer-container #quiz-iframe').attr('src', '');
         },
 
         // Toggle fullscreen mode
         toggleFullscreen: function($expandBtn) {
-            const $viewer = $expandBtn.closest('.typeform-quizzes-slider-container').find('.quiz-viewer');
+            // Try to find viewer in the same container first (integrated viewer)
+            let $viewer = $expandBtn.closest('.typeform-quizzes-slider-container').find('.quiz-viewer');
+            
+            // If not found, look for separate viewer container
+            if (!$viewer.length) {
+                $viewer = $expandBtn.closest('.typeform-quiz-viewer-container');
+            }
+            
             const $icon = $expandBtn.find('i');
             
             if ($viewer.hasClass('quiz-viewer-fullscreen')) {

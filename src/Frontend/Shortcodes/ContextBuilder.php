@@ -75,7 +75,9 @@ final class ContextBuilder
             'pagination_dot_size' => $defaults['pagination_dot_size'] ?? 8,
             'active_slide_border_color' => $defaults['active_slide_border_color'] ?? '#0073aa',
             'darken_inactive_slides' => $defaults['darken_inactive_slides'] ?? 1,
-            'order' => $defaults['order'] ?? 'menu_order'
+            'order' => $defaults['order'] ?? 'menu_order',
+            'separate_viewer' => $defaults['separate_viewer'] ?? false,
+            'show_viewer_title' => $defaults['show_viewer_title'] ?? true
         ], $atts, 'typeform_quizzes_slider');
 
         // Allow unlimited with max="all", 0, or -1
@@ -153,8 +155,8 @@ final class ContextBuilder
             'gap' => $gap
         ];
         
-        // Enqueue scripts and styles using AssetManager
-        AssetManager::enqueue_slider_assets($atts);
+        // Enqueue scripts and styles using Assets
+        \MTI\TypeformQuizzes\Frontend\Assets::enqueue_slider_assets($atts);
 
         return [
             'atts' => $atts,
@@ -188,6 +190,8 @@ final class ContextBuilder
             'pagination_dot_size' => $pagination_dot_size,
             'active_slide_border_color' => $active_slide_border_color,
             'darken_inactive_slides' => $darken_inactive_slides,
+            'separate_viewer' => \MTI\TypeformQuizzes\Support\Sanitize::boolean($atts['separate_viewer']),
+            'show_viewer_title' => \MTI\TypeformQuizzes\Support\Sanitize::boolean($atts['show_viewer_title']),
             'swiper_params' => $swiper_params
         ];
     }

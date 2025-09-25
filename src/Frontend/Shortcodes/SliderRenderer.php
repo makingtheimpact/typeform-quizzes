@@ -84,12 +84,6 @@ class SliderRenderer
                 </div>
                 <div class="quiz-viewer-content">
                     <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px;"></div>
-                    <?php if (self::is_local_development()): ?>
-                    <div id="dev-notice" style="background: #fff3cd; border: 1px solid #ffeaa7; color: #856404; padding: 10px; margin-bottom: 10px; border-radius: 4px; font-size: 14px;">
-                        <strong>Development Notice:</strong> Typeform CSP may block embedding in local development. 
-                        <a href="<?php echo esc_url($quizzes[0]['url']); ?>" target="_blank" style="color: #0073aa; text-decoration: underline;">Click here to open in new tab</a>
-                    </div>
-                    <?php endif; ?>
                     <iframe id="quiz-iframe" 
                             src="<?php echo esc_url(self::get_embed_url($quizzes[0]['url'])); ?>" 
                             width="100%" 
