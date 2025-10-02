@@ -123,11 +123,11 @@ class Assets
         }
 
         // Enqueue custom CSS file after swiper styles
-        $custom_css_url = TFQ_PLUGIN_URL . 'assets/css/typeform-quizzes-custom.css';
+        $custom_css_url = TFQ_PLUGIN_URL . 'assets/css/typeform-quizzes-custom-min.css';
         wp_enqueue_style('typeform-quizzes-custom', $custom_css_url, ['typeform-quizzes-swiper'], TFQ_VERSION);
 
         // Enqueue custom JavaScript file
-        $custom_js_url = TFQ_PLUGIN_URL . 'assets/js/typeform-quizzes.js';
+        $custom_js_url = TFQ_PLUGIN_URL . 'assets/js/typeform-quizzes-min.js';
         wp_enqueue_script('typeform-quizzes-custom', $custom_js_url, ['jquery', 'typeform-quizzes-swiper'], TFQ_VERSION, true);
 
         // Add CSS variables for custom styles

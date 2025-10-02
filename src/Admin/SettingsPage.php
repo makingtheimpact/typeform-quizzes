@@ -194,61 +194,114 @@ final class SettingsPage
             <!-- Export/Import Section -->
             <div style="background: #f8f9fa; border: 1px solid #e1e5e9; border-radius: 8px; padding: 25px; margin: 30px 0;">
                 <h2 style="margin: 0 0 20px 0; color: #0073aa; font-size: 24px; border-bottom: 3px solid #0073aa; padding-bottom: 15px;">
-                    📤 <?php esc_html_e('Export & Import Quizzes', 'typeform-quizzes'); ?>
+                    📤 <?php esc_html_e('Export & Import', 'typeform-quizzes'); ?>
                 </h2>
                 <p style="margin: 0 0 20px 0; color: #666; font-size: 14px; line-height: 1.5;">
-                    <?php esc_html_e('Export your quizzes to a JSON file for backup or transfer to another site. Import quizzes from a previously exported file.', 'typeform-quizzes'); ?>
+                    <?php esc_html_e('Export your quizzes and settings to JSON files for backup or transfer to another site. Import from previously exported files.', 'typeform-quizzes'); ?>
                 </p>
                 
-                <div style="display: flex; gap: 20px; flex-wrap: wrap; margin: 20px 0;">
-                    <!-- Export Section -->
-                    <div style="flex: 1; min-width: 300px; background: #fff; border: 1px solid #e1e5e9; border-radius: 6px; padding: 20px;">
-                        <h3 style="margin: 0 0 15px 0; color: #0073aa; font-size: 18px; border-bottom: 2px solid #e1e5e9; padding-bottom: 10px;">
-                            📤 <?php esc_html_e('Export Quizzes', 'typeform-quizzes'); ?>
-                        </h3>
-                        <p style="margin: 0 0 15px 0; color: #666; font-size: 14px;">
-                            <?php esc_html_e('Download all your quizzes as a JSON file for backup or migration.', 'typeform-quizzes'); ?>
-                        </p>
-                        <form method="post" action="" style="margin: 0;">
-                            <?php wp_nonce_field('typeform_quizzes_settings', '_wpnonce'); ?>
-                            <input type="hidden" name="action" value="export_quizzes">
-                            <button type="submit" class="button button-primary" style="background: #0073aa; border-color: #0073aa; padding: 8px 20px; font-size: 14px;">
-                                📥 <?php esc_html_e('Download Quiz Export', 'typeform-quizzes'); ?>
-                            </button>
-                        </form>
+                <!-- Quizzes Export/Import -->
+                <div style="margin-bottom: 30px;">
+                    <h3 style="margin: 0 0 15px 0; color: #0073aa; font-size: 20px; border-bottom: 2px solid #e1e5e9; padding-bottom: 10px;">
+                        🎯 <?php esc_html_e('Quizzes', 'typeform-quizzes'); ?>
+                    </h3>
+                    <div style="display: flex; gap: 20px; flex-wrap: wrap; margin: 20px 0;">
+                        <!-- Export Quizzes Section -->
+                        <div style="flex: 1; min-width: 300px; background: #fff; border: 1px solid #e1e5e9; border-radius: 6px; padding: 20px;">
+                            <h4 style="margin: 0 0 15px 0; color: #0073aa; font-size: 18px; border-bottom: 2px solid #e1e5e9; padding-bottom: 10px;">
+                                📤 <?php esc_html_e('Export Quizzes', 'typeform-quizzes'); ?>
+                            </h4>
+                            <p style="margin: 0 0 15px 0; color: #666; font-size: 14px;">
+                                <?php esc_html_e('Download all your quizzes as a JSON file for backup or migration.', 'typeform-quizzes'); ?>
+                            </p>
+                            <form method="post" action="" style="margin: 0;">
+                                <?php wp_nonce_field('typeform_quizzes_settings', '_wpnonce'); ?>
+                                <input type="hidden" name="action" value="export_quizzes">
+                                <button type="submit" class="button button-primary" style="background: #0073aa; border-color: #0073aa; padding: 8px 20px; font-size: 14px;">
+                                    📥 <?php esc_html_e('Download Quiz Export', 'typeform-quizzes'); ?>
+                                </button>
+                            </form>
+                        </div>
+                        
+                        <!-- Import Quizzes Section -->
+                        <div style="flex: 1; min-width: 300px; background: #fff; border: 1px solid #e1e5e9; border-radius: 6px; padding: 20px;">
+                            <h4 style="margin: 0 0 15px 0; color: #0073aa; font-size: 18px; border-bottom: 2px solid #e1e5e9; padding-bottom: 10px;">
+                                📥 <?php esc_html_e('Import Quizzes', 'typeform-quizzes'); ?>
+                            </h4>
+                            <p style="margin: 0 0 15px 0; color: #666; font-size: 14px;">
+                                <?php esc_html_e('Upload a previously exported JSON file to import quizzes.', 'typeform-quizzes'); ?>
+                            </p>
+                            <form method="post" action="" enctype="multipart/form-data" style="margin: 0;">
+                                <?php wp_nonce_field('typeform_quizzes_settings', '_wpnonce'); ?>
+                                <input type="hidden" name="action" value="import_quizzes">
+                                <input type="file" name="quiz_import_file" accept=".json" required style="margin-bottom: 10px; width: 100%;">
+                                <br>
+                                <label style="display: flex; align-items: center; margin: 10px 0; font-size: 14px;">
+                                    <input type="checkbox" name="overwrite_existing" value="1" style="margin-right: 8px;">
+                                    <?php esc_html_e('Overwrite existing quizzes with same title', 'typeform-quizzes'); ?>
+                                </label>
+                                <button type="submit" class="button button-secondary" style="padding: 8px 20px; font-size: 14px;">
+                                    📤 <?php esc_html_e('Upload & Import', 'typeform-quizzes'); ?>
+                                </button>
+                            </form>
+                        </div>
                     </div>
-                    
-                    <!-- Import Section -->
-                    <div style="flex: 1; min-width: 300px; background: #fff; border: 1px solid #e1e5e9; border-radius: 6px; padding: 20px;">
-                        <h3 style="margin: 0 0 15px 0; color: #0073aa; font-size: 18px; border-bottom: 2px solid #e1e5e9; padding-bottom: 10px;">
-                            📥 <?php esc_html_e('Import Quizzes', 'typeform-quizzes'); ?>
-                        </h3>
-                        <p style="margin: 0 0 15px 0; color: #666; font-size: 14px;">
-                            <?php esc_html_e('Upload a previously exported JSON file to import quizzes.', 'typeform-quizzes'); ?>
-                        </p>
-                        <form method="post" action="" enctype="multipart/form-data" style="margin: 0;">
-                            <?php wp_nonce_field('typeform_quizzes_settings', '_wpnonce'); ?>
-                            <input type="hidden" name="action" value="import_quizzes">
-                            <input type="file" name="quiz_import_file" accept=".json" required style="margin-bottom: 10px; width: 100%;">
-                            <br>
-                            <label style="display: flex; align-items: center; margin: 10px 0; font-size: 14px;">
-                                <input type="checkbox" name="overwrite_existing" value="1" style="margin-right: 8px;">
-                                <?php esc_html_e('Overwrite existing quizzes with same title', 'typeform-quizzes'); ?>
-                            </label>
-                            <button type="submit" class="button button-secondary" style="padding: 8px 20px; font-size: 14px;">
-                                📤 <?php esc_html_e('Upload & Import', 'typeform-quizzes'); ?>
-                            </button>
-                        </form>
+                </div>
+
+                <!-- Settings Export/Import -->
+                <div>
+                    <h3 style="margin: 0 0 15px 0; color: #0073aa; font-size: 20px; border-bottom: 2px solid #e1e5e9; padding-bottom: 10px;">
+                        ⚙️ <?php esc_html_e('Plugin Settings', 'typeform-quizzes'); ?>
+                    </h3>
+                    <div style="display: flex; gap: 20px; flex-wrap: wrap; margin: 20px 0;">
+                        <!-- Export Settings Section -->
+                        <div style="flex: 1; min-width: 300px; background: #fff; border: 1px solid #e1e5e9; border-radius: 6px; padding: 20px;">
+                            <h4 style="margin: 0 0 15px 0; color: #0073aa; font-size: 18px; border-bottom: 2px solid #e1e5e9; padding-bottom: 10px;">
+                                📤 <?php esc_html_e('Export Settings', 'typeform-quizzes'); ?>
+                            </h4>
+                            <p style="margin: 0 0 15px 0; color: #666; font-size: 14px;">
+                                <?php esc_html_e('Download your plugin settings as a JSON file for backup or transfer to another site.', 'typeform-quizzes'); ?>
+                            </p>
+                            <form method="post" action="" style="margin: 0;">
+                                <?php wp_nonce_field('typeform_quizzes_settings', '_wpnonce'); ?>
+                                <input type="hidden" name="action" value="export_settings">
+                                <button type="submit" class="button button-primary" style="background: #0073aa; border-color: #0073aa; padding: 8px 20px; font-size: 14px;">
+                                    📥 <?php esc_html_e('Download Settings Export', 'typeform-quizzes'); ?>
+                                </button>
+                            </form>
+                        </div>
+                        
+                        <!-- Import Settings Section -->
+                        <div style="flex: 1; min-width: 300px; background: #fff; border: 1px solid #e1e5e9; border-radius: 6px; padding: 20px;">
+                            <h4 style="margin: 0 0 15px 0; color: #0073aa; font-size: 18px; border-bottom: 2px solid #e1e5e9; padding-bottom: 10px;">
+                                📥 <?php esc_html_e('Import Settings', 'typeform-quizzes'); ?>
+                            </h4>
+                            <p style="margin: 0 0 15px 0; color: #666; font-size: 14px;">
+                                <?php esc_html_e('Upload a previously exported settings JSON file to restore your configuration.', 'typeform-quizzes'); ?>
+                            </p>
+                            <form method="post" action="" enctype="multipart/form-data" style="margin: 0;">
+                                <?php wp_nonce_field('typeform_quizzes_settings', '_wpnonce'); ?>
+                                <input type="hidden" name="action" value="import_settings">
+                                <input type="file" name="settings_import_file" accept=".json" required style="margin-bottom: 15px; width: 100%;">
+                                <br>
+                                <button type="submit" class="button button-secondary" style="padding: 8px 20px; font-size: 14px;">
+                                    📤 <?php esc_html_e('Upload & Import Settings', 'typeform-quizzes'); ?>
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
                 
                 <div style="background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 6px; padding: 15px; margin: 20px 0;">
                     <h4 style="margin: 0 0 10px 0; color: #856404; font-size: 16px;">⚠️ Important Notes:</h4>
                     <ul style="margin: 0; padding-left: 20px; color: #856404; line-height: 1.6; font-size: 14px;">
-                        <li>Export includes quiz titles, content, Typeform URLs, featured images, and display order</li>
-                        <li>Import will create new quiz posts - existing quizzes won't be modified unless "Overwrite" is checked</li>
+                        <li><strong>Quiz Export:</strong> Includes quiz titles, content, Typeform URLs, featured images, and display order</li>
+                        <li><strong>Settings Export:</strong> Includes all plugin configuration settings (colors, dimensions, layout options, etc.)</li>
+                        <li><strong>Quiz Import:</strong> Creates new quiz posts - existing quizzes won't be modified unless "Overwrite" is checked</li>
+                        <li><strong>Settings Import:</strong> Replaces all current settings with the imported configuration</li>
                         <li>Featured images will be re-imported from the original URLs if available</li>
-                        <li>Always backup your site before importing quizzes</li>
+                        <li>Always backup your site before importing data</li>
+                        <li>Settings exports are compatible across different WordPress installations</li>
                     </ul>
                 </div>
             </div>
@@ -1049,7 +1102,7 @@ final class SettingsPage
         $action = sanitize_text_field($_POST['action']);
         
         // Only handle our specific actions
-        if (!in_array($action, ['export_quizzes', 'import_quizzes'])) {
+        if (!in_array($action, ['export_quizzes', 'import_quizzes', 'export_settings', 'import_settings'])) {
             return;
         }
         
@@ -1067,6 +1120,10 @@ final class SettingsPage
             self::handle_export_quizzes();
         } elseif ($action === 'import_quizzes') {
             self::handle_import_quizzes();
+        } elseif ($action === 'export_settings') {
+            self::handle_export_settings();
+        } elseif ($action === 'import_settings') {
+            self::handle_import_settings();
         }
     }
 
@@ -1336,6 +1393,128 @@ final class SettingsPage
 
         // Set as featured image
         set_post_thumbnail($post_id, $attachment_id);
+    }
+
+    /**
+     * Handle settings export
+     */
+    public static function handle_export_settings(): void
+    {
+        // Security check - capability check only since nonce is verified in handle_export_import_early()
+        if (!current_user_can('manage_options')) {
+            wp_die(__('Security check failed', 'typeform-quizzes'), __('Forbidden', 'typeform-quizzes'), ['response' => 403]);
+        }
+        
+        // Start output buffering to prevent any output before headers
+        ob_start();
+
+        // Get current settings
+        $settings = \MTI\TypeformQuizzes\Services\Options::all();
+
+        $export_data = [
+            'version' => '1.0',
+            'export_date' => current_time('mysql'),
+            'site_url' => get_site_url(),
+            'plugin_version' => defined('TFQ_VERSION') ? TFQ_VERSION : '1.1.0',
+            'settings' => $settings
+        ];
+
+        // Generate filename
+        $filename = 'typeform-quizzes-settings-export-' . date('Y-m-d-H-i-s') . '.json';
+
+        // Clear any existing output buffer
+        ob_clean();
+        
+        // Set headers for file download
+        header('Content-Type: application/json');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        header('Cache-Control: no-cache, must-revalidate');
+        header('Expires: Sat, 26 Jul 1997 05:00:00 GMT');
+
+        // Output JSON data
+        echo json_encode($export_data, JSON_PRETTY_PRINT);
+        
+        // End output buffering and send output
+        ob_end_flush();
+        exit;
+    }
+
+    /**
+     * Handle settings import
+     */
+    public static function handle_import_settings(): void
+    {
+        // Security check - capability check only since nonce is verified in handle_export_import_early()
+        if (!current_user_can('manage_options')) {
+            wp_die(__('Security check failed', 'typeform-quizzes'), __('Forbidden', 'typeform-quizzes'), ['response' => 403]);
+        }
+
+        // Check if file was uploaded
+        if (!isset($_FILES['settings_import_file']) || $_FILES['settings_import_file']['error'] !== UPLOAD_ERR_OK) {
+            add_action('admin_notices', function() {
+                echo '<div class="notice notice-error"><p>' . esc_html__('Error uploading file. Please try again.', 'typeform-quizzes') . '</p></div>';
+            });
+            return;
+        }
+
+        $file = $_FILES['settings_import_file'];
+        
+        // Validate file type
+        $file_extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        if ($file_extension !== 'json') {
+            add_action('admin_notices', function() {
+                echo '<div class="notice notice-error"><p>' . esc_html__('Invalid file type. Please upload a JSON file.', 'typeform-quizzes') . '</p></div>';
+            });
+            return;
+        }
+
+        // Read and validate JSON
+        $json_content = file_get_contents($file['tmp_name']);
+        $json_data = json_decode($json_content, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            add_action('admin_notices', function() {
+                echo '<div class="notice notice-error"><p>' . esc_html__('Invalid JSON file. Please check the file format.', 'typeform-quizzes') . '</p></div>';
+            });
+            return;
+        }
+
+        // Validate import data structure
+        if (!isset($json_data['settings']) || !is_array($json_data['settings'])) {
+            add_action('admin_notices', function() {
+                echo '<div class="notice notice-error"><p>' . esc_html__('Invalid import file format. Missing settings data.', 'typeform-quizzes') . '</p></div>';
+            });
+            return;
+        }
+
+        // Always replace all settings when importing
+        $imported_settings = $json_data['settings'];
+
+        // Sanitize the imported settings using the same sanitizer as the form
+        $sanitized_settings = self::sanitize_defaults($imported_settings);
+
+        // Save the settings
+        $success = \MTI\TypeformQuizzes\Services\Options::replace($sanitized_settings);
+
+        // Check if settings are identical to current settings
+        $current_settings = \MTI\TypeformQuizzes\Services\Options::all();
+        $settings_identical = ($sanitized_settings === $current_settings);
+
+        if ($success || $settings_identical) {
+            if ($settings_identical) {
+                $message = __('Settings imported successfully! The imported settings are identical to your current configuration, so no changes were needed.', 'typeform-quizzes');
+            } else {
+                $message = __('Settings imported successfully! Your configuration has been restored.', 'typeform-quizzes');
+            }
+            
+            add_action('admin_notices', function() use ($message) {
+                echo '<div class="notice notice-success"><p>' . esc_html($message) . '</p></div>';
+            });
+        } else {
+            add_action('admin_notices', function() {
+                echo '<div class="notice notice-error"><p>' . esc_html__('Error saving settings. Please try again.', 'typeform-quizzes') . '</p></div>';
+            });
+        }
     }
 
     public static function field_pagination_dot_color(): void {
@@ -1709,16 +1888,16 @@ final class SettingsPage
         );
 
         $sanitized['pagination_dot_gap'] = \MTI\TypeformQuizzes\Support\Sanitize::integer_clamp(
-            $input['pagination_dot_gap'] ?? 8, 
-            4, 
-            20,
-            8
+            $input['pagination_dot_gap'] ?? 10, 
+            0, 
+            50,
+            10
         );
 
         $sanitized['pagination_dot_size'] = \MTI\TypeformQuizzes\Support\Sanitize::integer_clamp(
             $input['pagination_dot_size'] ?? 8, 
             4, 
-            16,
+            20,
             8
         );
 
